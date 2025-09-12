@@ -4,3 +4,6 @@
 [submodule "src/bin/hermes"]
 	path = src/bin/hermes
 	url = https://github.com/AtlasLinux/hermes.git
+[submodule "src/bin/coreutils"]
+	path = src/bin/coreutils
+	url = https://github.com/AtlasLinux/coreutils.git
