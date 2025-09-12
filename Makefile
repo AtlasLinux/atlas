@@ -73,7 +73,7 @@ img: subprojects
 run: img
 	qemu-system-x86_64 \
 		-kernel kernel/bzImage \
-		-append "root=/dev/vda rw console=tty1" \
+		-append "root=/dev/vda rw console=tty1 init=/sbin/gaia" \
 		-drive file=$(IMAGE),if=virtio,format=raw
 
 clean:
