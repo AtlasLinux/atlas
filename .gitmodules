@@ -1,0 +1,6 @@
+[submodule "src/sbin/init"]
+	path = src/sbin/init
+	url = https://github.com/AtlasLinux/gaia.git
+[submodule "src/bin/hermes"]
+	path = src/bin/hermes
+	url = https://github.com/AtlasLinux/hermes.git
