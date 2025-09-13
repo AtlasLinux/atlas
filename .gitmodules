@@ -10,3 +10,6 @@
 [submodule "src/bin/curl"]
 	path = src/bin/curl
 	url = https://github.com/atlaslinux/curl
+[submodule "src/bin/pandora"]
+	path = src/bin/pandora
+	url = https://github.com/atlaslinux/pandora
