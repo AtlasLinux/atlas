@@ -35,31 +35,35 @@ img: subprojects
 	@mkdir -p $(MOUNT_POINT)
 	sudo mount -o loop $(IMAGE) $(MOUNT_POINT)
 
-    # populate minimal /dev
-	sudo mkdir -p $(MOUNT_POINT)/dev
-	sudo mknod -m 600 $(MOUNT_POINT)/dev/console c 5 1
-	sudo mknod -m 666 $(MOUNT_POINT)/dev/tty c 5 0
-	sudo mknod -m 620 $(MOUNT_POINT)/dev/tty1 c 4 1
-
     # copy all executable files from each subproject
 	@for mf in $(SUBPROJECTS); do \
-			dir=$$(dirname $$mf); \
-			# remove src/ prefix \
-			rel=$${dir#$(SRC_DIR)/}; \
-			path=$$(dirname $$rel); \
-			# find all executables in build/ \
-			find "$$dir/build" -type f -executable | while read exec_path; do \
-				# strip build/ prefix to get relative path \
-				rel_exec=$${exec_path#$$dir/build/}; \
-				if [ "$$path" = "." ]; then \
-					dest_path="$(MOUNT_POINT)/$$rel_exec"; \
-				else \
-					dest_path="$(MOUNT_POINT)/$$path/$$rel_exec"; \
-				fi; \
-				echo "==> Installing $$exec_path to $$dest_path"; \
-				sudo mkdir -p $$(dirname "$$dest_path"); \
-				sudo cp "$$exec_path" "$$dest_path"; \
-			done; \
+		dir=$$(dirname $$mf); \
+		rel=$${dir#$(SRC_DIR)/}; \
+		parent_dir=$$(dirname "$$rel"); \
+		find "$$dir/build" -type f -executable | while read exec_path; do \
+			file_name=$$(basename "$$exec_path"); \
+			if [ "$$parent_dir" = "." ]; then \
+				dest_path="$(MOUNT_POINT)/$$file_name"; \
+			else \
+				dest_path="$(MOUNT_POINT)/$$parent_dir/$$file_name"; \
+			fi; \
+			echo "==> Installing $$exec_path to $$dest_path"; \
+			sudo mkdir -p "$$(dirname "$$dest_path")"; \
+			sudo cp "$$exec_path" "$$dest_path"; \
+		done; \
+	done
+
+    # copy plain files, but skip directories that have a Makefile
+	@echo "==> Copying plain files without Makefile"
+	@find $(SRC_DIR) \
+		-type d -name build -prune -o \
+		-type d -exec test -f "{}/Makefile" \; -prune -o \
+		-type f ! -name Makefile -print | while read f; do \
+		rel=$${f#$(SRC_DIR)/}; \
+		dest="$(MOUNT_POINT)/$$rel"; \
+		echo "==> Installing $$f to $$dest"; \
+		sudo mkdir -p "$$(dirname "$$dest")"; \
+		sudo cp "$$f" "$$dest"; \
 	done
 
 	sudo umount $(MOUNT_POINT)
