@@ -7,3 +7,6 @@
 [submodule "src/bin/coreutils"]
 	path = src/bin/coreutils
 	url = https://github.com/AtlasLinux/coreutils.git
+[submodule "src/bin/curl"]
+	path = src/bin/curl
+	url = https://github.com/atlaslinux/curl
