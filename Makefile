@@ -28,7 +28,6 @@ img: subprojects
 	@mkdir -p $(MOUNT_POINT)
 	sudo mount -o loop $(IMAGE) $(MOUNT_POINT)
 
-	# copy all executables from subprojects incrementally
 	@for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
 		rel=$${dir#$(SRC_DIR)/}; \
@@ -50,7 +49,6 @@ img: subprojects
 		done; \
 	done
 
-	# copy plain files without Makefile incrementally
 	@echo "==> Copying plain files without Makefile"
 	@find $(SRC_DIR) \
 		-type d -name build -prune -o \
@@ -83,6 +81,7 @@ crun: clean run
 
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -rf $(IMAGE)
 	@for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
 		$(MAKE) -C $$dir clean || true; \
