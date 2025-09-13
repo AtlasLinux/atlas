@@ -13,3 +13,6 @@
 [submodule "src/bin/pandora"]
 	path = src/bin/pandora
 	url = https://github.com/atlaslinux/pandora
+[submodule "src/bin/arch"]
+	path = src/bin/arch
+	url = https://github.com/atlaslinux/arch
