@@ -79,7 +79,7 @@ run: img
 		-m 8096 \
 		-drive file=$(IMAGE),if=virtio,format=raw
 
-crun: img run
+crun: clean run
 
 clean:
 	rm -rf $(BUILD_DIR)
