@@ -7,7 +7,6 @@ BUILD_DIR   := build
 IMAGE       := atlas.img
 IMAGE_SIZE  := 64    # size in MB
 MOUNT_POINT := mnt
-ROOTFS      := $(BUILD_DIR)
 
 # find all subdirectories of src that have a Makefile
 SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile)
@@ -33,12 +32,8 @@ img: subprojects
 	@dd if=/dev/zero of=$(IMAGE) bs=1M count=$(IMAGE_SIZE) status=none
 	@mkfs.ext4 -F $(IMAGE)
 	@echo "==> Installing full rootfs into $(IMAGE)"
-	@mkdir -p $(MOUNT_POINT) $(ROOTFS)
+	@mkdir -p $(MOUNT_POINT)
 	sudo mount -o loop $(IMAGE) $(MOUNT_POINT)
-	@mkdir -p $(ROOTFS)
-	@if [ -d "$(ROOTFS)" ]; then \
-  		sudo cp -a $(ROOTFS)/* $(MOUNT_POINT)/ || true; \
-	fi
 
     # populate minimal /dev
 	sudo mkdir -p $(MOUNT_POINT)/dev
@@ -73,8 +68,12 @@ img: subprojects
 run: img
 	qemu-system-x86_64 \
 		-kernel kernel/bzImage \
-		-append "root=/dev/vda rw console=tty1 init=/sbin/gaia" \
+		-append "root=/dev/vda rw console=tty1" \
+		-netdev user,id=net0 \
+		-device e1000,netdev=net0 \
 		-drive file=$(IMAGE),if=virtio,format=raw
+
+crun: clean run
 
 clean:
 	rm -rf $(BUILD_DIR)
