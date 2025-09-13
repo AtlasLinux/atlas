@@ -5,17 +5,12 @@ IMAGE       := atlas.img
 IMAGE_SIZE  := 64    # size in MB
 MOUNT_POINT := mnt
 
-# find all subdirectories of src that have a Makefile
 SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile)
-
-# derive the built binary path for each subproject
-BUILT_BINS := $(patsubst %/Makefile,%/build/%,$(SUBPROJECTS))
 
 .PHONY: all img run clean subprojects
 
-all: clean img
+all: img
 
-# run each subproject Makefile
 subprojects: $(SUBPROJECTS)
 	@for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
@@ -23,16 +18,17 @@ subprojects: $(SUBPROJECTS)
 		$(MAKE) -C $$dir; \
 	done
 
-# disk image build
 img: subprojects
 	@echo "==> Rebuilding $(IMAGE) ($(IMAGE_SIZE)MB))"
-	@dd if=/dev/zero of=$(IMAGE) bs=1M count=$(IMAGE_SIZE) status=none
-	@mkfs.ext4 -F $(IMAGE)
+	@if [ ! -f $(IMAGE) ]; then \
+		dd if=/dev/zero of=$(IMAGE) bs=1M count=$(IMAGE_SIZE) status=none; \
+		mkfs.ext4 -F $(IMAGE); \
+	fi
 	@echo "==> Installing full rootfs into $(IMAGE)"
 	@mkdir -p $(MOUNT_POINT)
 	sudo mount -o loop $(IMAGE) $(MOUNT_POINT)
 
-    # copy all executable files from each subproject
+	# copy all executables from subprojects incrementally
 	@for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
 		rel=$${dir#$(SRC_DIR)/}; \
@@ -44,23 +40,31 @@ img: subprojects
 			else \
 				dest_path="$(MOUNT_POINT)/$$parent_dir/$$file_name"; \
 			fi; \
-			echo "==> Installing $$exec_path to $$dest_path"; \
-			sudo mkdir -p "$$(dirname "$$dest_path")"; \
-			sudo cp "$$exec_path" "$$dest_path"; \
+			if [ ! -f "$$dest_path" ] || [ "$$exec_path" -nt "$$dest_path" ]; then \
+				echo "==> Installing $$exec_path to $$dest_path"; \
+				sudo mkdir -p "$$(dirname "$$dest_path")"; \
+				sudo cp "$$exec_path" "$$dest_path"; \
+			else \
+				echo "==> Skipping $$exec_path (up-to-date)"; \
+			fi; \
 		done; \
 	done
 
-    # copy plain files, but skip directories that have a Makefile
+	# copy plain files without Makefile incrementally
 	@echo "==> Copying plain files without Makefile"
 	@find $(SRC_DIR) \
 		-type d -name build -prune -o \
 		-type d -exec test -f "{}/Makefile" \; -prune -o \
 		-type f ! -name Makefile -print | while read f; do \
-		rel=$${f#$(SRC_DIR)/}; \
-		dest="$(MOUNT_POINT)/$$rel"; \
-		echo "==> Installing $$f to $$dest"; \
-		sudo mkdir -p "$$(dirname "$$dest")"; \
-		sudo cp "$$f" "$$dest"; \
+			rel=$${f#$(SRC_DIR)/}; \
+			dest="$(MOUNT_POINT)/$$rel"; \
+			if [ ! -f "$$dest" ] || [ "$$f" -nt "$$dest" ]; then \
+				echo "==> Installing $$f to $$dest"; \
+				sudo mkdir -p "$$(dirname "$$dest")"; \
+				sudo cp "$$f" "$$dest"; \
+			else \
+				echo "==> Skipping $$f (up-to-date)"; \
+			fi; \
 	done
 
 	sudo umount $(MOUNT_POINT)
@@ -72,9 +76,10 @@ run: img
 		-append "root=/dev/vda rw console=tty1" \
 		-netdev user,id=net0 \
 		-device e1000,netdev=net0 \
+		-m 8096 \
 		-drive file=$(IMAGE),if=virtio,format=raw
 
-crun: clean run
+crun: img run
 
 clean:
 	rm -rf $(BUILD_DIR)
