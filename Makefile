@@ -19,6 +19,7 @@ subprojects: $(SUBPROJECTS)
 	done
 
 img: subprojects
+	@sudo umount $(MOUNT_POINT) 2>/dev/null || true
 	@echo "==> Rebuilding $(IMAGE) ($(IMAGE_SIZE)MB))"
 	@if [ ! -f $(IMAGE) ]; then \
 		dd if=/dev/zero of=$(IMAGE) bs=1M count=$(IMAGE_SIZE) status=none; \
@@ -43,8 +44,6 @@ img: subprojects
 				echo "==> Installing $$exec_path to $$dest_path"; \
 				sudo mkdir -p "$$(dirname "$$dest_path")"; \
 				sudo cp "$$exec_path" "$$dest_path"; \
-			else \
-				echo "==> Skipping $$exec_path (up-to-date)"; \
 			fi; \
 		done; \
 	done
@@ -60,8 +59,6 @@ img: subprojects
 				echo "==> Installing $$f to $$dest"; \
 				sudo mkdir -p "$$(dirname "$$dest")"; \
 				sudo cp "$$f" "$$dest"; \
-			else \
-				echo "==> Skipping $$f (up-to-date)"; \
 			fi; \
 	done
 
@@ -71,7 +68,7 @@ img: subprojects
 run: img
 	qemu-system-x86_64 \
 		-kernel kernel/bzImage \
-		-append "root=/dev/vda rw console=tty1" \
+		-append "root=/dev/vda rw console=tty1 vga=0x317" \
 		-netdev user,id=net0 \
 		-device e1000,netdev=net0 \
 		-m 8096 \
