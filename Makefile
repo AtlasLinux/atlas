@@ -33,7 +33,7 @@ img: subprojects
 		dir=$$(dirname $$mf); \
 		rel=$${dir#$(SRC_DIR)/}; \
 		parent_dir=$$(dirname "$$rel"); \
-		find "$$dir/build" -type f -executable | while read exec_path; do \
+		find "$$dir/build" \( -type f -executable -o -name "*.so*" \) | while read exec_path; do \
 			file_name=$$(basename "$$exec_path"); \
 			if [ "$$parent_dir" = "." ]; then \
 				dest_path="$(MOUNT_POINT)/$$file_name"; \
