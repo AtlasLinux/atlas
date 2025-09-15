@@ -1,18 +1,15 @@
-[submodule "src/sbin/init"]
-	path = src/sbin/init
-	url = https://github.com/AtlasLinux/gaia.git
-[submodule "src/bin/hermes"]
-	path = src/bin/hermes
-	url = https://github.com/AtlasLinux/hermes.git
-[submodule "src/bin/coreutils"]
-	path = src/bin/coreutils
-	url = https://github.com/AtlasLinux/coreutils.git
-[submodule "src/bin/curl"]
-	path = src/bin/curl
-	url = https://github.com/atlaslinux/curl
-[submodule "src/bin/pandora"]
-	path = src/bin/pandora
-	url = https://github.com/atlaslinux/pandora
-[submodule "src/bin/arch"]
-	path = src/bin/arch
+[submodule "src/usr/bin/hermes"]
+	path = src/usr/bin/hermes
+	url = https://github.com/atlaslinux/hermes
+[submodule "src/usr/bin/arch"]
+	path = src/usr/bin/arch
 	url = https://github.com/atlaslinux/arch
+[submodule "src/usr/bin/pandora"]
+	path = src/usr/bin/pandora
+	url = https://github.com/atlaslinux/pandora
+[submodule "src/usr/bin/curl"]
+	path = src/usr/bin/curl
+	url = https://github.com/atlaslinux/curl
+[submodule "src/usr/bin/coreutils"]
+	path = src/usr/bin/coreutils
+	url = https://github.com/atlaslinux/coreutils
