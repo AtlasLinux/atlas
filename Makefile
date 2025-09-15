@@ -77,7 +77,7 @@ run: img
 crun: clean run
 
 clean:
-	rm -rf $(BUILD_DIR)
+	sudo rm -rf $(BUILD_DIR)
 	rm -rf $(IMAGE)
 	@for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
