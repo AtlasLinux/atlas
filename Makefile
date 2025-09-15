@@ -7,7 +7,7 @@ MOUNT_POINT := mnt
 
 SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile)
 
-.PHONY: all img run clean subprojects
+.PHONY: all img run clean subprojects crun
 
 all: img
 
