@@ -99,8 +99,8 @@ crun: clean run
 
 clean:
 	sudo rm -rf $(BUILD_DIR)
-	sudo rm -rf iso
-	sudo rm atlas.iso
+	sudo rm -rf $(ISO_DIR)
+	sudo rm -f $(ISO)
 	rm -rf $(IMAGE)
 	@for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
