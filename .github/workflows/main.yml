@@ -1,5 +1,8 @@
 name: Build ISO and update latest release
 
+permissions:
+  contents: write
+
 on:
   push:   # every push
 
