@@ -1,0 +1,33 @@
+name: Build ISO and update latest release
+
+on:
+  push:   # every push
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Build ISO
+        run: make iso
+
+      # Make sure we have the GH CLI to script release updates
+      - name: Install GitHub CLI
+        run: sudo apt-get install -y gh
+
+      - name: Upload atlas.iso to 'latest' release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create or update the 'latest' release
+          gh release view latest || gh release create latest --title "Latest" --notes "Automated build"
+          # If the asset already exists, delete it before uploading
+          if gh release view latest --json assets --jq '.assets[].name' | grep -q '^atlas.iso$'; then
+            gh release delete-asset latest atlas.iso -y
+          fi
+          # Upload new iso
+          gh release upload latest atlas.iso --clobber
