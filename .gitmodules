@@ -13,3 +13,6 @@
 [submodule "src/usr/bin/coreutils"]
 	path = src/usr/bin/coreutils
 	url = https://github.com/atlaslinux/coreutils
+[submodule "src/sbin/init"]
+	path = src/sbin/init
+	url = https://github.com/atlaslinux/gaia
