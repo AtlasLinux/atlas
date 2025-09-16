@@ -13,7 +13,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y gcc make grub-common xorriso mtools cpio gzip
 
       - name: Build ISO
-        run: make iso
+        run: make clean && make iso
 
       # Make sure we have the GH CLI to script release updates
       - name: Install GitHub CLI
