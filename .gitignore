@@ -4,3 +4,4 @@ atlas.img
 atlas.iso
 iso
 .vscode
+initramfs.cpio.gz
