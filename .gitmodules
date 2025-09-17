@@ -16,3 +16,9 @@
 [submodule "src/sbin/init"]
 	path = src/sbin/init
 	url = https://github.com/atlaslinux/gaia
+[submodule "src/usr/bin/src/usr/bin/kernv"]
+	path = src/usr/bin/src/usr/bin/kernv
+	url = https://github.com/143domi1/kernv
+[submodule "src/usr/bin/kernv"]
+	path = src/usr/bin/kernv
+	url = https://github.com/143domi1/kernv
