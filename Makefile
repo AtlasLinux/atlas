@@ -7,7 +7,7 @@ ISO 		:= atlaslinux-x86_64.iso
 IMAGE_SIZE  := 64    # size in MB
 MOUNT_POINT := mnt
 
-SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile)
+SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile | sort -r)
 
 .PHONY: all img run clean subprojects crun iso build
 
