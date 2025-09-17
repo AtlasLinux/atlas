@@ -7,7 +7,7 @@ SRC_DIR = src
 SRC = $(shell find $(SRC_DIR) -name '*.c')
 OBJ = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC))
 
-TARGET = build/fbtest
+TARGET = build/snake
 
 .PHONY: all clean run crun
 
