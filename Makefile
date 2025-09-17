@@ -14,7 +14,8 @@ SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile)
 all: img
 
 subprojects: $(SUBPROJECTS)
-	@for mf in $(SUBPROJECTS); do \
+	@set -e; \
+	for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
 		echo "==> Building $$dir"; \
 		$(MAKE) -C $$dir; \
@@ -86,7 +87,9 @@ run: img
 		-netdev user,id=net0 \
 		-device e1000,netdev=net0 \
 		-m 8096 \
-		-drive file=$(IMAGE),if=virtio,format=raw
+		-drive file=$(IMAGE),if=virtio,format=raw \
+		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
+		-drive if=pflash,format=raw,file=x64/OVMF_VARS.4m.fd
 
 run-iso: iso
 	qemu-system-x86_64 \

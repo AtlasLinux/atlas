@@ -16,3 +16,6 @@
 [submodule "src/sbin/init"]
 	path = src/sbin/init
 	url = https://github.com/atlaslinux/gaia
+[submodule "src/usr/lib/libfb"]
+	path = src/usr/lib/libfb
+	url = https://github.com/AtlasLinux/libfb
