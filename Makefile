@@ -3,7 +3,7 @@ BUILD_DIR   := build
 ISO_DIR		:= iso
 
 IMAGE       := atlas.img
-ISO 		:= atlas.iso
+ISO 		:= atlaslinux-x86_64.iso
 IMAGE_SIZE  := 64    # size in MB
 MOUNT_POINT := mnt
 

@@ -24,15 +24,15 @@ jobs:
       - name: Install GitHub CLI
         run: sudo apt-get install -y gh
 
-      - name: Upload atlas.iso to 'latest' release
+      - name: Upload atlaslinux-x86_64.iso to 'latest' release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Create or update the 'latest' release
           gh release view latest || gh release create latest --title "Latest" --notes "Automated build"
           # If the asset already exists, delete it before uploading
-          if gh release view latest --json assets --jq '.assets[].name' | grep -q '^atlas.iso$'; then
-            gh release delete-asset latest atlas.iso -y
+          if gh release view latest --json assets --jq '.assets[].name' | grep -q '^atlaslinux-x86_64.iso$'; then
+            gh release delete-asset latest atlaslinux-x86_64.iso -y
           fi
           # Upload new iso
-          gh release upload latest atlas.iso --clobber
+          gh release upload latest atlaslinux-x86_64.iso --clobber
