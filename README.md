@@ -1,14 +1,13 @@
 # AtlasLinux
 
-AtlasLinux is a minimal, custom Linux distribution built entirely from scratch using the Linux kernel and glibc. Its primary goal is to provide a completely self-contained, statically-linked environment for development and experimentation, without relying on external tools or scripting languages.
+AtlasLinux is a minimal, custom Linux distribution built entirely from scratch using the Linux kernel and few external librariesb. Its primary goal is to provide a completely self-contained, statically-linked environment for development and experimentation, without relying on external tools or scripting languages.
 
 ---
 
 ## Features
 
-- Minimal init system with TTY and console support
+- Basic init system with TTY and console support
 - Custom shell (`hermes`) and basic coreutils
-- Fully static executables to avoid runtime dependencies
 - Simple disk image creation and management
 - Networking support via manually configured interfaces
 - Supports multiple TTYs with independent shell sessions
@@ -21,17 +20,15 @@ AtlasLinux is a minimal, custom Linux distribution built entirely from scratch u
 ```
 
 atlas/
-├── src/                # Source code for all packages
-│   ├── sbin/init       # Init system
-│   ├── bin/hermes      # Custom shell
-│   ├── bin/coreutils   # Basic utilities: ls, cat, mkdir, etc.
-│   └── bin/curl        # Networking test utility
-├── build/              # Build output (temporary)
-├── kernel/             # Linux kernel source or configuration
-├── Makefile            # Build system for creating image and binaries
-└── atlas.img           # Final disk image (generated)
+├── src/                  # Source code for the final OS. Preserves file paths
+├── build/                # Build output (temporary)
+├── build/                # ISO build dir (temporary)
+├── kernel/               # Linux kernel
+├── Makefile              # Build system for creating image and binaries
+├── atlaslinux-x86_64.iso # Final ISO
+└── atlas.img             # Final disk image (generated)
 
-````
+```
 
 ---
 
@@ -80,13 +77,12 @@ make crun
 ## Usage
 
 * After running the system in QEMU, you will have TTY1-3 available for logging in and testing commands.
-* Networking can be tested with the `curl` or `iptest` utilities inside the VM.
+* Networking can be tested with the `curl` utility inside the VM.
 
 ---
 
 ## Notes
 
-* All binaries are statically linked to avoid external dependencies.
 * The system is intended for learning and experimentation; it is not production-ready.
 * The disk image can be used with QEMU or written to a block device.
 
@@ -103,4 +99,4 @@ make crun
 
 ## License
 
-AtlasLinux is provided under the MIT License. See [LICENSE](LICENSE) for details.
+AtlasLinux is provided under the GNU GPL3 License. See [LICENSE](LICENSE) for details.
