@@ -4,3 +4,4 @@ mnt
 *.iso
 .vscode
 initramfs.cpio.gz
+iso/
