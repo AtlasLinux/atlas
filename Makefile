@@ -56,6 +56,7 @@ build: subprojects
 
 iso: build
 	@mkdir -p $(ISO_DIR)/boot/grub
+	@sudo rm -f $(BUILD_DIR)/init
 	@sudo ln $(BUILD_DIR)/sbin/init $(BUILD_DIR)/init
 	@cd $(BUILD_DIR) && find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../$(ISO_DIR)/boot/initramfs.cpio.gz
 	@sudo cp kernel/bzImage $(ISO_DIR)/boot
@@ -90,10 +91,11 @@ run: img
 run-iso: iso
 	qemu-system-x86_64 \
 		-cdrom $(ISO) \
-		-boot d \
- 		-netdev user,id=net0 \
- 		-device e1000,netdev=net0 \
-		-m 8096
+		-m 8096 \
+		-netdev user,id=net0 \
+		-device e1000,netdev=net0 \
+		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
+		-drive if=pflash,format=raw,file=x64/OVMF_VARS.4m.fd
 
 crun: clean run
 
