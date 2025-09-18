@@ -197,9 +197,13 @@ int main(void) {
         if (kbhit()) {
             char c = getch();
             switch (c) {
+            case 'k':
             case 'w': if (snake.dir != DOWN) snake.dir = UP; break;
+            case 'j':
             case 's': if (snake.dir != UP) snake.dir = DOWN; break;
+            case 'h':
             case 'a': if (snake.dir != RIGHT) snake.dir = LEFT; break;
+            case 'l':
             case 'd': if (snake.dir != LEFT) snake.dir = RIGHT; break;
             case 'q': running = 0; break;
             default: break;

@@ -9,7 +9,7 @@ MOUNT_POINT := mnt
 
 SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile | sort -r)
 
-.PHONY: all img run clean subprojects crun iso build
+.PHONY: all img run clean subprojects crun iso build crun-iso
 
 all: img
 
@@ -101,6 +101,7 @@ run-iso: iso
 		-drive if=pflash,format=raw,file=x64/OVMF_VARS.4m.fd
 
 crun: clean run
+crun-iso: clean run-iso
 
 clean:
 	sudo rm -rf $(BUILD_DIR)
