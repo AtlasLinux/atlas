@@ -19,3 +19,6 @@
 [submodule "src/usr/lib/libfb"]
 	path = src/usr/lib/libfb
 	url = https://github.com/AtlasLinux/libfb
+[submodule "src/usr/lib/liblog"]
+	path = src/usr/lib/liblog
+	url = https://github.com/AtlasLinux/liblog
