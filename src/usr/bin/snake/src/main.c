@@ -232,6 +232,7 @@ int main(void) {
         usleep(tick_us);
     }
 
+    fb_clear(&fb, COLOR_BLACK);
     fb_close(&fb);
     reset_terminal();
     printf("Game Over! Score: %d\n", snake.length - INITIAL_LENGTH);
