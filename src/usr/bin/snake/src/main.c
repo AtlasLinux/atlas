@@ -235,7 +235,7 @@ int main(void) {
     fb_clear(&fb, COLOR_BLACK);
     fb_close(&fb);
     reset_terminal();
-    printf("Game Over! Score: %d\n", snake.length - INITIAL_LENGTH);
+    printf("Game Over! Your Score Was: %d\n", snake.length - INITIAL_LENGTH);
     free(snake.body);
     return 0;
 }
