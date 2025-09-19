@@ -55,24 +55,46 @@ static int choose_net_iface(char *buf, size_t bufsz) {
 }
 
 /* assign IP to interface */
-static void set_ip_on_iface(const char *ifname, const char *ip) {
+static int set_ip_on_iface(const char *ifname, const char *ip) {
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (fd < 0) exit(1);
+    if (fd < 0) { perror("socket"); return -1; }
 
     struct ifreq ifr;
     memset(&ifr, 0, sizeof(ifr));
     strncpy(ifr.ifr_name, ifname, IFNAMSIZ-1);
 
+    // fetch current flags
+    if (ioctl(fd, SIOCGIFFLAGS, &ifr) < 0) {
+        perror("SIOCGIFFLAGS");
+        close(fd);
+        return -1;
+    }
+
+    // bring interface up
+    ifr.ifr_flags |= IFF_UP | IFF_RUNNING;
+    if (ioctl(fd, SIOCSIFFLAGS, &ifr) < 0) {
+        perror("SIOCSIFFLAGS");
+        close(fd);
+        return -1;
+    }
+
+    // assign IP
     struct sockaddr_in *addr = (struct sockaddr_in *)&ifr.ifr_addr;
     addr->sin_family = AF_INET;
-    inet_pton(AF_INET, ip, &addr->sin_addr);
-    ioctl(fd, SIOCSIFADDR, &ifr);
+    if (inet_pton(AF_INET, ip, &addr->sin_addr) != 1) {
+        fprintf(stderr, "invalid IP: %s\n", ip);
+        close(fd);
+        return -1;
+    }
 
-    ioctl(fd, SIOCGIFFLAGS, &ifr);
-    ifr.ifr_flags |= IFF_UP | IFF_RUNNING;
-    ioctl(fd, SIOCSIFFLAGS, &ifr);
+    if (ioctl(fd, SIOCSIFADDR, &ifr) < 0) {
+        perror("SIOCSIFADDR");
+        close(fd);
+        return -1;
+    }
 
     close(fd);
+    return 0;
 }
 
 /* add default route */
