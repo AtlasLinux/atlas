@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive   # fetch and init all submodules
-          fetch-depth: 0          # full history (needed if submodules use tags)
+          fetch-depth: 1          # full history (needed if submodules use tags)
 
       - name: Install build tools
         run: sudo apt-get update && sudo apt-get install -y gcc make grub-common xorriso mtools cpio gzip
