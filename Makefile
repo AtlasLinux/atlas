@@ -83,7 +83,7 @@ img: build
 run: img
 	qemu-system-x86_64 \
 		-kernel kernel/bzImage \
-		-append "root=/dev/vda rw console=tty1 vga=0x317" \
+		-append "root=/dev/vda rw console=tty1" \
 		-netdev user,id=net0 \
 		-device e1000,netdev=net0 \
 		-m 8096 \

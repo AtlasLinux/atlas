@@ -9,7 +9,7 @@
 #include <sys/select.h>
 #include "fb.h"
 
-#define CELL_SIZE 10
+#define CELL_SIZE 25
 #define INITIAL_LENGTH 5
 #define BORDER 1
 
