@@ -1,9 +1,0 @@
-kernel/fs/efivarfs/efivarfs.ko.zst:
-kernel/drivers/thermal/intel/x86_pkg_temp_thermal.ko.zst:
-kernel/net/netfilter/nf_log_syslog.ko.zst:
-kernel/net/netfilter/xt_mark.ko.zst:
-kernel/net/netfilter/xt_LOG.ko.zst:
-kernel/net/netfilter/xt_MASQUERADE.ko.zst:
-kernel/net/netfilter/xt_addrtype.ko.zst:
-kernel/net/ipv4/netfilter/nf_reject_ipv4.ko.zst:
-kernel/net/ipv6/netfilter/nf_reject_ipv6.ko.zst:

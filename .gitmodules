@@ -22,3 +22,6 @@
 [submodule "src/usr/lib/liblog"]
 	path = src/usr/lib/liblog
 	url = https://github.com/AtlasLinux/liblog
+[submodule "kernel/linux"]
+	path = kernel/linux
+	url = https://github.com/atlaslinux/linux
