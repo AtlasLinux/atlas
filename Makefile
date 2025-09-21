@@ -46,7 +46,7 @@ build: $(SUBPROJECTS)
 		$(MAKE) -C $$dir --no-print-directory -s; \
 	done
 
-install: subprojects
+install: build
 	@for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
 		rel=$${dir#$(SRC_DIR)/}; \
