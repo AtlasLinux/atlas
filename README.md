@@ -38,6 +38,8 @@ Once the kernel is built, the rest of the targets become available.
 
 `clean`: removes build artifacts from `build/`, `iso/` and `src/**/build/`
 
+For ease of use, `run.sh` exists to compile, build and install modules/files and run automatically.
+
 ### Creating an application for AtlasLinux
 
 Atlas' top-level `Makefile` utilises a clever build system, where is automagically builds all `Makefile`s within the `src/` dir.  To get started, create a diractory where the eventual application will be located:

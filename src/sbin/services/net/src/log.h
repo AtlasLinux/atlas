@@ -11,4 +11,4 @@ extern int loglevel;
 extern char* logfile;
 
 void log_console_level(log_level_t level, const char *fmt, ...);
-void log_init(const char* file, const int level);
+void log_init(const char* file, const log_level_t level);

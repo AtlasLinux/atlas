@@ -10,7 +10,8 @@ MOUNT_POINT := mnt
 SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile | sort -r)
 
 KERNEL_TREE := kernel/linux
-DEST_ROOT   := $(BUILD_DIR)/usr/lib/modules/linux
+KERNEL_VER 	:= 6.16.0-g37816488247d
+DEST_ROOT   := $(BUILD_DIR)/usr/lib/modules/$(KERNEL_VER)
 
 .PHONY: all img run clean install crun iso build crun-iso kernel modules
 
@@ -30,13 +31,17 @@ modules:
 		sudo mkdir -p $$(dirname $$dest); \
 		sudo cp -v $$path $$dest; \
 	done
+	@sudo cp $(KERNEL_TREE)/modules.builtin  $(DEST_ROOT)
+	@sudo cp $(KERNEL_TREE)/modules.builtin.modinfo  $(DEST_ROOT)
+	@sudo cp $(KERNEL_TREE)/modules.order  $(DEST_ROOT)
+	@sudo depmod -b $(BUILD_DIR)/usr $(KERNEL_VER)
 
 kernel:
 	@cd kernel/linux; \
 	export INSTALL_MOD_PATH=$(abspath src/usr); \
-	cp ../../kernel.conf .config \
-	$(MAKE) -j$(shell nproc) olddefconfig \
-	$(MAKE) -j$(shell nproc) all \
+	cp ../../kernel.conf .config; \
+	$(MAKE) -j$(shell nproc) olddefconfig; \
+	$(MAKE) -j$(shell nproc) all; \
 
 build: $(SUBPROJECTS)
 	@set -e; \
@@ -135,5 +140,5 @@ clean:
 	rm -rf $(IMAGE)
 	@for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
-		$(MAKE) -C $$dir clean || true; \
+		$(MAKE) -C $$dir --no-print-directory -s clean || true; \
 	done
