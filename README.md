@@ -1,102 +1,59 @@
 # AtlasLinux
 
-AtlasLinux is a minimal, custom Linux distribution built entirely from scratch using the Linux kernel and few external librariesb. Its primary goal is to provide a completely self-contained, statically-linked environment for development and experimentation, without relying on external tools or scripting languages.
+AtlasLinux is a from-scratch Linux distro, where we use as few external libraries as possible. The long-term goal is to only rely on the Linux kernel, with a custom [libc](https://github.com/atlaslinux/atlibc), bootloader, etc.
 
----
+If you solely want the .iso, you can get it from the auto-built [release](https://github.com/atlaslinux/atlas/releases/tag/latest).
 
-## Features
+## Developing
 
-- Basic init system with TTY and console support
-- Custom shell (`hermes`) and basic coreutils
-- Simple disk image creation and management
-- Networking support via manually configured interfaces
-- Supports multiple TTYs with independent shell sessions
-- Fully controllable build system using Makefiles and submodules
+### Makefile usage
 
----
-
-## Project Layout
-
-```
-
-atlas/
-├── src/                  # Source code for the final OS. Preserves file paths
-├── build/                # Build output (temporary)
-├── build/                # ISO build dir (temporary)
-├── kernel/               # Linux kernel
-├── Makefile              # Build system for creating image and binaries
-├── atlaslinux-x86_64.iso # Final ISO
-└── atlas.img             # Final disk image (generated)
-
-```
-
----
-
-## Build Instructions
-
-1. Clone the repository and initialize submodules:
-
+To get started, run
 ```bash
-git clone --recurse-submodules <repo-url>
-cd atlas
-````
-
-2. Ensure you have a C compiler, `make`, and `qemu-system-x86_64`.
-
-3. Build the entire system and generate the disk image:
-
-```bash
-make
+make kernel
 ```
+to build the kernel using our config (beware, this can take upwards of 1 hour and uses all available cores by default).
 
-4. Run the system in QEMU:
+Once the kernel is built, the rest of the targets become available.
 
-```bash
-make run
+`all`: the main target. Builds everything under `src/` and installs into `atlas.img` for quick testing.
+
+`modules`: installs the specified kernel modules into `build/`. Requires a space-seperated list of modules passed into `$(MODULES)` (i.e. `make modules MODULES=e1000` for the e1000 intel ethernet driver)
+
+`build`: builds everything under `src/` without installing
+
+`install`: installs everything under `src/` into `build/`
+
+`img`: creates `atlas.img` from the contents of `build/`
+
+`iso`: creates an `initramfs.cpio.gz` from the contents of `build/`, configures grub and creates `atlaslinux-x86_64.iso`
+
+`run`: runs `atlas.img`
+
+`run-iso`: runs `atlaslinux-x86_64.iso`
+
+`crun`: wrapper for `clean` and `run`
+
+`crun-iso`: wrapper for `clean` and `run-iso`
+
+`clean`: removes build artifacts from `build/`, `iso/` and `src/**/build/`
+
+### Creating an application for AtlasLinux
+
+Atlas' top-level `Makefile` utilises a clever build system, where is automagically builds all `Makefile`s within the `src/` dir.  To get started, create a diractory where the eventual application will be located:
 ```
-
-or combine clean and run:
-
-```bash
-make crun
+src/
+└── bin/
+    └── app/
 ```
+Populate this directory with the following:
+```
+app/
+├── Makefile
+└── src/
+    └── main.c      # entrypoint
+```
+The `Makefile` only has to follow a few rules:
 
----
-
-## How It Works
-
-* The Makefile automatically detects submodules with a `Makefile`, builds them, and copies all binaries into the image.
-* Executables are installed flattened: e.g., `src/bin/curl/build/curl` → `/bin/curl` in the disk image.
-* Plain files in `src/` directories without a Makefile are copied as-is.
-* Init mounts `/proc`, `/sys`, and `/dev`, then spawns shell processes on multiple TTYs.
-* Networking is configured manually in init (`lo`, `eth0`) with a static IP and default route.
-* The custom shell `hermes` supports basic command execution and environment handling.
-
----
-
-## Usage
-
-* After running the system in QEMU, you will have TTY1-3 available for logging in and testing commands.
-* Networking can be tested with the `curl` utility inside the VM.
-
----
-
-## Notes
-
-* The system is intended for learning and experimentation; it is not production-ready.
-* The disk image can be used with QEMU or written to a block device.
-
----
-
-## Future Improvements
-
-* Implement a package management system for adding new tools.
-* Enhance shell with scripting capabilities.
-* Add dynamic network configuration and DHCP support.
-* Build kernel modules directly into the image for additional hardware support.
-
----
-
-## License
-
-AtlasLinux is provided under the GNU GPL3 License. See [LICENSE](LICENSE) for details.
+1. Any outputted executables/libraries **must** be placed in `build/`
+2. It must have a `clean` target that removes `build/` 

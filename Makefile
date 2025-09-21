@@ -4,24 +4,49 @@ ISO_DIR		:= iso
 
 IMAGE       := atlas.img
 ISO 		:= atlaslinux-x86_64.iso
-IMAGE_SIZE  := 16   # size in MB
+IMAGE_SIZE  := 64   # size in MB
 MOUNT_POINT := mnt
 
 SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile | sort -r)
 
-.PHONY: all img run clean subprojects crun iso build crun-iso
+KERNEL_TREE := kernel/linux
+DEST_ROOT   := $(BUILD_DIR)/usr/lib/modules/linux
+
+.PHONY: all img run clean install crun iso build crun-iso kernel modules
 
 all: img
 
-subprojects: $(SUBPROJECTS)
+modules:
+	@mkdir -p $(BUILD_DIR)
+	@echo "Installing modules: $(MODULES)"
+	@for m in $(MODULES); do \
+		path=$$(find $(KERNEL_TREE) -type f -name "$$m.ko" | head -n1); \
+		if [ -z "$$path" ]; then \
+			echo "Error: module $$m.ko not found under $(KERNEL_TREE)" >&2; \
+			exit 1; \
+		fi; \
+		rel=$${path#$(KERNEL_TREE)/}; \
+		dest=$(DEST_ROOT)/$$rel; \
+		sudo mkdir -p $$(dirname $$dest); \
+		sudo cp -v $$path $$dest; \
+	done
+
+kernel:
+	@cd kernel/linux; \
+	export INSTALL_MOD_PATH=$(abspath src/usr); \
+	cp ../../kernel.conf .config \
+	$(MAKE) -j$(shell nproc) olddefconfig \
+	$(MAKE) -j$(shell nproc) all \
+
+build: $(SUBPROJECTS)
 	@set -e; \
 	for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
 		echo "==> Building $$dir"; \
-		$(MAKE) -C $$dir; \
+		$(MAKE) -C $$dir --no-print-directory -s; \
 	done
 
-build: subprojects
+install: subprojects
 	@for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
 		rel=$${dir#$(SRC_DIR)/}; \
@@ -55,7 +80,7 @@ build: subprojects
 			fi; \
 	done
 
-iso: build
+iso: install
 	@mkdir -p $(ISO_DIR)/boot/grub
 	@sudo rm -f $(BUILD_DIR)/init
 	@sudo ln $(BUILD_DIR)/sbin/init $(BUILD_DIR)/init
@@ -64,7 +89,7 @@ iso: build
 	@cp grub.cfg $(ISO_DIR)/boot/grub
 	@grub-mkrescue -o $(ISO) $(ISO_DIR)
 
-img: build
+img: install
 	@sudo umount $(MOUNT_POINT) 2>/dev/null || true
 	@echo "==> Rebuilding $(IMAGE) ($(IMAGE_SIZE)MB))"
 	@if [ ! -f $(IMAGE) ]; then \

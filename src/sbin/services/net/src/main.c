@@ -82,7 +82,7 @@ static int set_ip_on_iface(const char *ifname, const char *ip) {
     struct sockaddr_in *addr = (struct sockaddr_in *)&ifr.ifr_addr;
     addr->sin_family = AF_INET;
     if (inet_pton(AF_INET, ip, &addr->sin_addr) != 1) {
-        fprintf(stderr, "invalid IP: %s\n", ip);
+        fprintf(stderr, "invalid IP: %s\n\r", ip);
         close(fd);
         return -1;
     }
