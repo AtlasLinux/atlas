@@ -11,7 +11,7 @@ SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile | sort -r)
 
 KERNEL_TREE := kernel/linux
 KERNEL_VER 	:= 6.16.0-g37816488247d
-DEST_ROOT   := $(BUILD_DIR)/usr/lib/modules/$(KERNEL_VER)
+DEST_ROOT   := $(SRC_DIR)/usr/lib/modules/$(KERNEL_VER)
 
 .PHONY: all img run clean install crun iso build crun-iso kernel modules
 
@@ -34,7 +34,7 @@ modules:
 	@sudo cp $(KERNEL_TREE)/modules.builtin  $(DEST_ROOT)
 	@sudo cp $(KERNEL_TREE)/modules.builtin.modinfo  $(DEST_ROOT)
 	@sudo cp $(KERNEL_TREE)/modules.order  $(DEST_ROOT)
-	@sudo depmod -b $(BUILD_DIR)/usr $(KERNEL_VER)
+	@sudo depmod -b $(SRC_DIR)/usr $(KERNEL_VER)
 
 kernel:
 	@cd kernel/linux; \
