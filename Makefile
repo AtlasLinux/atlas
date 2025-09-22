@@ -4,7 +4,7 @@ ISO_DIR		:= iso
 
 IMAGE       := atlas.img
 ISO 		:= atlaslinux-x86_64.iso
-IMAGE_SIZE  := 1024   # size in MB
+IMAGE_SIZE  := 32   # size in MB
 MOUNT_POINT := mnt
 
 SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile | sort -r)

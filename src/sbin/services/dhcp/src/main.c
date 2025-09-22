@@ -14,8 +14,40 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <net/route.h>
+#include <sys/un.h>
+#include <sys/types.h>
+#include <poll.h>
 
 #include "log.h"
+
+#define CONTROL_SOCKET_PATH "/run/dhcpd.sock"
+
+static int setup_control_socket(void) {
+    int fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (fd < 0) {
+        log_error("control socket(): %s\n\r", strerror(errno));
+        return -1;
+    }
+
+    struct sockaddr_un addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sun_family = AF_UNIX;
+    strncpy(addr.sun_path, CONTROL_SOCKET_PATH, sizeof(addr.sun_path)-1);
+
+    unlink(CONTROL_SOCKET_PATH); /* remove stale */
+
+    if (bind(fd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+        log_perror("bind");
+        close(fd);
+        return -1;
+    }
+    if (listen(fd, 5) < 0) {
+        log_perror("listen");
+        close(fd);
+        return -1;
+    }
+    return fd;
+}
 
 /* bring up loopback */
 static void configure_lo(void) {
@@ -583,7 +615,6 @@ int main(void) {
     log_init("/log/services/dhcp.log", 0);
     log_info("dhcp service starting...\n\r");
 
-    /* ensure loopback */
     configure_lo();
 
     char ifname[IFNAMSIZ] = {0};
@@ -606,6 +637,34 @@ int main(void) {
     if (rc == 0) log_info("dhcp succeeded on %s\n\r", ifname);
     else log_error("dhcp failed on %s\n\r", ifname);
 
-    log_info("dhcp service done\n\r");
-    return rc == 0 ? 0 : 1;
+    /* start control socket loop */
+    int ctl_fd = setup_control_socket();
+    if (ctl_fd < 0) return 1;
+
+    log_info("control socket listening at %s\n\r", CONTROL_SOCKET_PATH);
+
+    for (;;) {
+        int cfd = accept(ctl_fd, NULL, NULL);
+        if (cfd < 0) {
+            log_warn("accept: %s\n\r", strerror(errno));
+            continue;
+        }
+
+        char cmd[128];
+        ssize_t n = read(cfd, cmd, sizeof(cmd)-1);
+        if (n <= 0) { close(cfd); continue; }
+        cmd[n] = 0;
+
+        /* very basic command handler */
+        if (strncmp(cmd, "status", 6) == 0) {
+            dprintf(cfd, "dhcp %s\n", rc==0 ? "ok" : "failed");
+        } else if (strncmp(cmd, "iface", 5) == 0) {
+            dprintf(cfd, "iface %s\n", ifname);
+        } else {
+            dprintf(cfd, "unknown\n");
+        }
+        close(cfd);
+    }
+
+    return 0;
 }
