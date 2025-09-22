@@ -1,1 +1,5 @@
 # Aliases for symbols, used by symbol_request().
+alias symbol:virtio_dma_buf_attach virtio_dma_buf
+alias symbol:is_virtio_dma_buf virtio_dma_buf
+alias symbol:virtio_dma_buf_get_uuid virtio_dma_buf
+alias symbol:virtio_dma_buf_export virtio_dma_buf

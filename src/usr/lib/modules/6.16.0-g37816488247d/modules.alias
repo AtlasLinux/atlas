@@ -36,3 +36,4 @@ alias pci:v00008086d00001008sv*sd*bc*sc*i* e1000
 alias pci:v00008086d00001004sv*sd*bc*sc*i* e1000
 alias pci:v00008086d00001001sv*sd*bc*sc*i* e1000
 alias pci:v00008086d00001000sv*sd*bc*sc*i* e1000
+alias virtio:d00000010v* virtio_gpu

@@ -85,6 +85,9 @@ install: build
 			fi; \
 	done
 
+test:
+	sed -i 's|kernel/arch/x86|usr/lib/modules/$(KERNEL_VER)|g' kernel/linux/modules.dep
+
 iso: install
 	@mkdir -p $(ISO_DIR)/boot/grub
 	@sudo rm -f $(BUILD_DIR)/init
@@ -116,6 +119,7 @@ run: img
 		-append "root=/dev/vda rw console=tty1" \
 		-netdev user,id=net0 \
 		-device e1000,netdev=net0 \
+		-device virtio-vga \
 		-m 8096 \
 		-drive file=$(IMAGE),if=virtio,format=raw \
 		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
