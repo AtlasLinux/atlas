@@ -25,3 +25,6 @@
 [submodule "kernel/linux"]
 	path = kernel/linux
 	url = https://github.com/atlaslinux/linux
+[submodule "src/usr/bin/fish_editor"]
+	path = src/usr/bin/fish_editor
+	url = https://github.com/ict00/fish_editor
