@@ -5,4 +5,3 @@ mnt
 .vscode
 initramfs.cpio.gz
 iso/
-src/usr/lib/modules
