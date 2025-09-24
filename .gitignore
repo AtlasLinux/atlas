@@ -1,7 +1,8 @@
-build
-mnt
-*.img
-*.iso
-.vscode
-initramfs.cpio.gz
+# build artifacts
+build/
 iso/
+*.iso
+*.img
+
+# stamps
+build/.stamps/
