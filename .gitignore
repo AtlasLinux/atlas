@@ -1,8 +1,6 @@
-# build artifacts
-build/
-iso/
-*.iso
+build
+mnt
 *.img
-
-# stamps
-build/.stamps/
+*.iso
+.vscode
+iso/

@@ -4,7 +4,7 @@ ISO_DIR		:= iso
 
 IMAGE       := atlas.img
 ISO 		:= atlaslinux-x86_64.iso
-IMAGE_SIZE  := 32   # size in MB
+IMAGE_SIZE  := 64   # size in MB
 MOUNT_POINT := mnt
 
 SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile | sort -r)
@@ -100,6 +100,7 @@ iso: install
 img: install
 	@sudo umount $(MOUNT_POINT) 2>/dev/null || true
 	@echo "==> Rebuilding $(IMAGE) ($(IMAGE_SIZE)MB))"
+	@rm -f $(IMAGE)
 	@if [ ! -f $(IMAGE) ]; then \
 		dd if=/dev/zero of=$(IMAGE) bs=1M count=$(IMAGE_SIZE) status=none; \
 		mkfs.ext4 -F $(IMAGE); \
@@ -131,6 +132,7 @@ run-iso: iso
 		-m 8096 \
 		-netdev user,id=net0 \
 		-device e1000,netdev=net0 \
+		-device virtio-vga \
 		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
 		-drive if=pflash,format=raw,file=x64/OVMF_VARS.4m.fd
 
