@@ -39,7 +39,7 @@ modules:
 kernel:
 	@cd kernel/linux; \
 	export INSTALL_MOD_PATH=$(abspath src/usr); \
-	cp ../../kernel.conf .config; \
+	cp ../../linux.conf .config; \
 	$(MAKE) -j$(shell nproc) olddefconfig; \
 	$(MAKE) -j$(shell nproc) all; \
 
