@@ -93,12 +93,12 @@ static boolean IsValidAxis(int axis)
 
     if (axis < 0)
     {
-        return true;
+        return _true;
     }
 
     if (IS_BUTTON_AXIS(axis))
     {
-        return true;
+        return _true;
     }
 
     if (IS_HAT_AXIS(axis))
@@ -163,7 +163,7 @@ void I_InitJoystick(void)
 
     printf("I_InitJoystick: %s\n", SDL_JoystickName(joystick_index));
 
-    I_AtExit(I_ShutdownJoystick, true);
+    I_AtExit(I_ShutdownJoystick, _true);
 #endif
 }
 
@@ -175,7 +175,7 @@ static boolean IsAxisButton(int physbutton)
         if (physbutton == BUTTON_AXIS_NEG(joystick_x_axis)
          || physbutton == BUTTON_AXIS_POS(joystick_x_axis))
         {
-            return true;
+            return _true;
         }
     }
     if (IS_BUTTON_AXIS(joystick_y_axis))
@@ -183,7 +183,7 @@ static boolean IsAxisButton(int physbutton)
         if (physbutton == BUTTON_AXIS_NEG(joystick_y_axis)
          || physbutton == BUTTON_AXIS_POS(joystick_y_axis))
         {
-            return true;
+            return _true;
         }
     }
     if (IS_BUTTON_AXIS(joystick_strafe_axis))
@@ -191,11 +191,11 @@ static boolean IsAxisButton(int physbutton)
         if (physbutton == BUTTON_AXIS_NEG(joystick_strafe_axis)
          || physbutton == BUTTON_AXIS_POS(joystick_strafe_axis))
         {
-            return true;
+            return _true;
         }
     }
 
-    return false;
+    return _false;
 }
 
 // Get the state of the given virtual button.

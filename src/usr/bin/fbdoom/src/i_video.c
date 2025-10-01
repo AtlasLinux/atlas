@@ -154,11 +154,11 @@ static boolean palette_to_set;
 
 // display has been set up?
 
-static boolean initialized = false;
+static boolean initialized = _false;
 
 // disable mouse?
 
-static boolean nomouse = false;
+static boolean nomouse = _false;
 int usemouse = 1;
 
 // Bit mask of mouse button state.
@@ -175,7 +175,7 @@ int novert = 0;
 
 int png_screenshots = 0;
 
-// if true, I_VideoBuffer is screen->pixels
+// if _true, I_VideoBuffer is screen->pixels
 
 static boolean native_surface;
 
@@ -195,11 +195,11 @@ static int autoadjust_video_settings = 1;
 
 // Run in full screen mode?  (int type for config code)
 
-int fullscreen = true;
+int fullscreen = _true;
 
 // Aspect ratio correction mode
 
-int aspect_ratio_correct = true;
+int aspect_ratio_correct = _true;
 
 // Time to wait for the screen to settle on startup before starting the
 // game (ms)
@@ -208,27 +208,27 @@ static int startup_delay = 1000;
 
 // Grab the mouse? (int type for config code)
 
-static int grabmouse = true;
+static int grabmouse = _true;
 
 // The screen buffer; this is modified to draw things to the screen
 
 byte *I_VideoBuffer = NULL;
 
-// If true, game is running as a screensaver
+// If _true, game is running as a screensaver
 
-boolean screensaver_mode = false;
+boolean screensaver_mode = _false;
 
 // Flag indicating whether the screen is currently visible:
 // when the screen isnt visible, don't render the screen
 
 boolean screenvisible;
 
-// If true, we display dots at the bottom of the screen to 
+// If _true, we display dots at the bottom of the screen to 
 // indicate FPS.
 
 static boolean display_fps_dots;
 
-// If this is true, the screen is rendered but not blitted to the
+// If this is _true, the screen is rendered but not blitted to the
 // video buffer.
 
 static boolean noblit;
@@ -255,15 +255,15 @@ static screen_mode_t *screen_mode;
 
 // Window resize state.
 
-static boolean need_resize = false;
+static boolean need_resize = _false;
 static unsigned int resize_w, resize_h;
 static unsigned int last_resize_time;
 
-// If true, keyboard mapping is ignored, like in Vanilla Doom.
+// If _true, keyboard mapping is ignored, like in Vanilla Doom.
 // The sensible thing to do is to disable this if you have a non-US
 // keyboard.
 
-int vanilla_keyboard_mapping = true;
+int vanilla_keyboard_mapping = _true;
 
 // Is the shift key currently down?
 
@@ -292,28 +292,28 @@ static boolean MouseShouldBeGrabbed()
     // never grab the mouse when in screensaver mode
    
     if (screensaver_mode)
-        return false;
+        return _false;
 
     // if the window doesn't have focus, never grab it
 
     if (!window_focused)
-        return false;
+        return _false;
 
     // always grab the mouse when full screen (dont want to 
     // see the mouse pointer)
 
     if (fullscreen)
-        return true;
+        return _true;
 
     // Don't grab the mouse if mouse input is disabled
 
     if (!usemouse || nomouse)
-        return false;
+        return _false;
 
     // if we specify not to grab the mouse, never grab
 
     if (!grabmouse)
-        return false;
+        return _false;
 
     // Invoke the grabmouse callback function to determine whether
     // the mouse should be grabbed
@@ -324,7 +324,7 @@ static boolean MouseShouldBeGrabbed()
     }
     else
     {
-        return true;
+        return _true;
     }
 }
 
@@ -549,11 +549,11 @@ void I_ShutdownGraphics(void)
 {
     if (initialized)
     {
-        SetShowCursor(true);
+        SetShowCursor(_true);
 
         SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
-        initialized = false;
+        initialized = _false;
     }
 }
 
@@ -784,14 +784,14 @@ void I_GetEvent(void)
             case SDL_MOUSEBUTTONDOWN:
 		if (usemouse && !nomouse)
 		{
-                    UpdateMouseButtonState(sdlevent.button.button, true);
+                    UpdateMouseButtonState(sdlevent.button.button, _true);
 		}
                 break;
 
             case SDL_MOUSEBUTTONUP:
 		if (usemouse && !nomouse)
 		{
-                    UpdateMouseButtonState(sdlevent.button.button, false);
+                    UpdateMouseButtonState(sdlevent.button.button, _false);
 		}
                 break;
 
@@ -806,11 +806,11 @@ void I_GetEvent(void)
                 break;
 
             case SDL_VIDEOEXPOSE:
-                palette_to_set = true;
+                palette_to_set = _true;
                 break;
 
             case SDL_RESIZABLE:
-                need_resize = true;
+                need_resize = _true;
                 resize_w = sdlevent.resize.w;
                 resize_h = sdlevent.resize.h;
                 last_resize_time = SDL_GetTicks();
@@ -912,7 +912,7 @@ void I_UpdateNoBlit (void)
 
 static void UpdateGrab(void)
 {
-    static boolean currently_grabbed = false;
+    static boolean currently_grabbed = _false;
     boolean grab;
 
     grab = MouseShouldBeGrabbed();
@@ -921,16 +921,16 @@ static void UpdateGrab(void)
     {
         // Hide the cursor in screensaver mode
 
-        SetShowCursor(false);
+        SetShowCursor(_false);
     }
     else if (grab && !currently_grabbed)
     {
-        SetShowCursor(false);
+        SetShowCursor(_false);
         CenterMouse();
     }
     else if (!grab && currently_grabbed)
     {
-        SetShowCursor(true);
+        SetShowCursor(_true);
 
         // When releasing the mouse from grab, warp the mouse cursor to
         // the bottom-right of the screen. This is a minimally distracting
@@ -950,7 +950,7 @@ static void UpdateGrab(void)
 //
 // Does stretching and buffer blitting if neccessary
 //
-// Return true if blit was successful.
+// Return _true if blit was successful.
 
 static boolean BlitArea(int x1, int y1, int x2, int y2)
 {
@@ -961,7 +961,7 @@ static boolean BlitArea(int x1, int y1, int x2, int y2)
 
     if (native_surface)
     {
-	return true;
+	return _true;
     }
 
     x_offset = (screenbuffer->w - screen_mode->width) / 2;
@@ -979,7 +979,7 @@ static boolean BlitArea(int x1, int y1, int x2, int y2)
     }
     else
     {
-        result = false;
+        result = _false;
     }
 
     return result;
@@ -1078,8 +1078,8 @@ void I_FinishUpdate (void)
     if (need_resize && SDL_GetTicks() > last_resize_time + 500)
     {
         ApplyWindowResize(resize_w, resize_h);
-        need_resize = false;
-        palette_to_set = true;
+        need_resize = _false;
+        palette_to_set = _true;
     }
 
     UpdateGrab();
@@ -1113,7 +1113,7 @@ void I_FinishUpdate (void)
     if (palette_to_set)
     {
         SDL_SetColors(screenbuffer, palette, 0, 256);
-        palette_to_set = false;
+        palette_to_set = _false;
 
         // In native 8-bit mode, if we have a palette to set, the act
         // of setting the palette updates the screen
@@ -1169,7 +1169,7 @@ void I_SetPalette (byte *doompalette)
         palette[i].b = gammatable[usegamma][*doompalette++] & ~3;
     }
 
-    palette_to_set = true;
+    palette_to_set = _true;
 }
 
 // Given an RGB value, find the closest matching palette index.
@@ -1338,7 +1338,7 @@ static screen_mode_t *I_FindScreenMode(int w, int h)
 }
 
 // Adjust to an appropriate fullscreen mode.
-// Returns true if successful.
+// Returns _true if successful.
 
 static boolean AutoAdjustFullscreen(void)
 {
@@ -1354,7 +1354,7 @@ static boolean AutoAdjustFullscreen(void)
 
     if (modes == NULL || modes == (SDL_Rect **) -1 || *modes == NULL)
     {
-        return false;
+        return _false;
     }
 
     // Find the best mode that matches the mode specified in the
@@ -1386,7 +1386,7 @@ static boolean AutoAdjustFullscreen(void)
         if (screen_width == modes[i]->w && screen_height == modes[i]->h)
         {
         //    printf("\tExact mode!\n");
-            return true;
+            return _true;
         }
 
         // Is this mode better than the current mode?
@@ -1406,7 +1406,7 @@ static boolean AutoAdjustFullscreen(void)
     {
         // Unable to find a valid mode!
 
-        return false;
+        return _false;
     }
 
     printf("I_InitGraphics: %ix%i mode not supported on this machine.\n",
@@ -1415,7 +1415,7 @@ static boolean AutoAdjustFullscreen(void)
     screen_width = best_mode->w;
     screen_height = best_mode->h;
 
-    return true;
+    return _true;
 }
 
 // Auto-adjust to a valid windowed mode.
@@ -1590,7 +1590,7 @@ void I_GraphicsCheckCommandLine(void)
 
     if (M_CheckParm("-grabmouse"))
     {
-        grabmouse = true;
+        grabmouse = _true;
     }
 
     //!
@@ -1601,7 +1601,7 @@ void I_GraphicsCheckCommandLine(void)
 
     if (M_CheckParm("-nograbmouse"))
     {
-        grabmouse = false;
+        grabmouse = _false;
     }
 
     // default to fullscreen mode, allow override with command line
@@ -1615,7 +1615,7 @@ void I_GraphicsCheckCommandLine(void)
 
     if (M_CheckParm("-window") || M_CheckParm("-nofullscreen"))
     {
-        fullscreen = false;
+        fullscreen = _false;
     }
 
     //!
@@ -1626,7 +1626,7 @@ void I_GraphicsCheckCommandLine(void)
 
     if (M_CheckParm("-fullscreen"))
     {
-        fullscreen = true;
+        fullscreen = _true;
     }
 
     //!
@@ -1715,11 +1715,11 @@ void I_GraphicsCheckCommandLine(void)
 
             if (s == 3 && f == 'f')
             {
-                fullscreen = true;
+                fullscreen = _true;
             }
             else if (s == 3 && f == 'w')
             {
-                fullscreen = false;
+                fullscreen = _false;
             }
         }
     }
@@ -1765,7 +1765,7 @@ void I_GraphicsCheckCommandLine(void)
 
     if (M_CheckParm("-novert"))
     {
-        novert = true;
+        novert = _true;
     }
 
     //!
@@ -1776,7 +1776,7 @@ void I_GraphicsCheckCommandLine(void)
 
     if (M_CheckParm("-nonovert"))
     {
-        novert = false;
+        novert = _false;
     }
 }
 
@@ -1790,7 +1790,7 @@ void I_CheckIsScreensaver(void)
 
     if (env != NULL)
     {
-        screensaver_mode = true;
+        screensaver_mode = _true;
     }
 }
 
@@ -1872,7 +1872,7 @@ static void SetVideoMode(screen_mode_t *mode, int w, int h)
 
     doompal = W_CacheLumpName(DEH_String("PLAYPAL"), PU_CACHE);
 
-    // If we are already running and in a true color mode, we need
+    // If we are already running and in a _true color mode, we need
     // to free the screenbuffer surface before setting the new mode.
 
     if (screenbuffer != NULL && screen != screenbuffer)
@@ -2153,11 +2153,11 @@ void I_InitGraphics(void)
   
     while (SDL_PollEvent(&dummy));
 
-    initialized = true;
+    initialized = _true;
 
     // Call I_ShutdownGraphics on quit
 
-    I_AtExit(I_ShutdownGraphics, true);
+    I_AtExit(I_ShutdownGraphics, _true);
 }
 
 // Bind all variables controlling video options into the configuration

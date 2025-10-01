@@ -99,23 +99,23 @@ static const char *subst_config_filenames[] =
     "strife-music.cfg",
 };
 
-static boolean music_initialized = false;
+static boolean music_initialized = _false;
 
-// If this is true, this module initialized SDL sound and has the 
+// If this is _true, this module initialized SDL sound and has the 
 // responsibility to shut it down
 
-static boolean sdl_was_initialized = false;
+static boolean sdl_was_initialized = _false;
 
-static boolean musicpaused = false;
+static boolean musicpaused = _false;
 static int current_music_volume;
 
 char *timidity_cfg_path = "";
 
 static char *temp_timidity_cfg = NULL;
 
-// If true, we are playing a substitute digital track rather than in-WAD
+// If _true, we are playing a substitute digital track rather than in-WAD
 // MIDI/MUS track, and file_metadata contains loop metadata.
-static boolean playing_substitute = false;
+static boolean playing_substitute = _false;
 static file_metadata_t file_metadata;
 
 // Position (in samples) that we have reached in the current track.
@@ -125,7 +125,7 @@ static unsigned int current_track_pos;
 // Currently playing music track.
 static Mix_Music *current_track_music = NULL;
 
-// If true, the currently playing track is being played on loop.
+// If _true, the currently playing track is being played on loop.
 static boolean current_track_loop;
 
 // Given a time string (for LOOP_START/LOOP_END), parse it and return
@@ -371,7 +371,7 @@ static void ReadLoopPoints(char *filename, file_metadata_t *metadata)
     FILE *fs;
     char header[4];
 
-    metadata->valid = false;
+    metadata->valid = _false;
     metadata->samplerate_hz = 0;
     metadata->start_time = 0;
     metadata->end_time = -1;
@@ -630,7 +630,7 @@ static boolean ReadSubstituteConfig(char *filename)
 
     if (fs == NULL)
     {
-        return false;
+        return _false;
     }
 
     old_subst_music_len = subst_music_len;
@@ -652,7 +652,7 @@ static boolean ReadSubstituteConfig(char *filename)
 
     fclose(fs);
 
-    return true;
+    return _true;
 }
 
 // Find substitute configs and try to load them.
@@ -692,7 +692,7 @@ static void LoadSubstituteConfigs(void)
     }
 }
 
-// Returns true if the given lump number is a music lump that should
+// Returns _true if the given lump number is a music lump that should
 // be included in substitute configs.
 // Identifying music lumps by name is not feasible; some games (eg.
 // Heretic, Hexen) don't have a common naming pattern for music lumps.
@@ -704,7 +704,7 @@ static boolean IsMusicLump(int lumpnum)
 
     if (W_LumpLength(lumpnum) < 4)
     {
-        return false;
+        return _false;
     }
 
     data = W_CacheLumpNum(lumpnum, PU_STATIC);
@@ -785,14 +785,14 @@ static boolean WriteWrapperTimidityConfig(char *write_path)
 
     if (!strcmp(timidity_cfg_path, ""))
     {
-        return false;
+        return _false;
     }
 
     fstream = fopen(write_path, "w");
 
     if (fstream == NULL)
     {
-        return false;
+        return _false;
     }
 
     p = strrchr(timidity_cfg_path, DIR_SEPARATOR);
@@ -807,7 +807,7 @@ static boolean WriteWrapperTimidityConfig(char *write_path)
     fprintf(fstream, "source %s\n", timidity_cfg_path);
     fclose(fstream);
 
-    return true;
+    return _true;
 }
 
 void I_InitTimidityConfig(void)
@@ -859,13 +859,13 @@ static void I_SDL_ShutdownMusic(void)
     if (music_initialized)
     {
         Mix_HaltMusic();
-        music_initialized = false;
+        music_initialized = _false;
 
         if (sdl_was_initialized)
         {
             Mix_CloseAudio();
             SDL_QuitSubSystem(SDL_INIT_AUDIO);
-            sdl_was_initialized = false;
+            sdl_was_initialized = _false;
         }
     }
 }
@@ -930,7 +930,7 @@ static boolean I_SDL_InitMusic(void)
 
     if (SDLIsInitialized())
     {
-        music_initialized = true;
+        music_initialized = _true;
     }
     else
     {
@@ -948,8 +948,8 @@ static boolean I_SDL_InitMusic(void)
         {
             SDL_PauseAudio(0);
 
-            sdl_was_initialized = true;
-            music_initialized = true;
+            sdl_was_initialized = _true;
+            music_initialized = _true;
         }
     }
 
@@ -1057,7 +1057,7 @@ static void I_SDL_PauseSong(void)
         return;
     }
 
-    musicpaused = true;
+    musicpaused = _true;
 
     UpdateMusicVolume();
 }
@@ -1069,7 +1069,7 @@ static void I_SDL_ResumeSong(void)
         return;
     }
 
-    musicpaused = false;
+    musicpaused = _false;
 
     UpdateMusicVolume();
 }
@@ -1082,7 +1082,7 @@ static void I_SDL_StopSong(void)
     }
 
     Mix_HaltMusic();
-    playing_substitute = false;
+    playing_substitute = _false;
     current_track_music = NULL;
 }
 
@@ -1146,7 +1146,7 @@ static void *I_SDL_RegisterSong(void *data, int len)
         return NULL;
     }
 
-    playing_substitute = false;
+    playing_substitute = _false;
 
     // See if we're substituting this MUS for a high-quality replacement.
     filename = GetSubstituteMusicFile(data, len);
@@ -1166,7 +1166,7 @@ static void *I_SDL_RegisterSong(void *data, int len)
         {
             // Read loop point metadata from the file so that we know where
             // to loop the music.
-            playing_substitute = true;
+            playing_substitute = _true;
             ReadLoopPoints(filename, &file_metadata);
             return music;
         }
@@ -1221,7 +1221,7 @@ static boolean I_SDL_MusicIsPlaying(void)
 {
     if (!music_initialized)
     {
-        return false;
+        return _false;
     }
 
     return Mix_PlayingMusic();
@@ -1266,7 +1266,7 @@ static void RestartCurrentTrack(void)
     {
         Mix_HaltMusic();
         current_track_music = NULL;
-        playing_substitute = false;
+        playing_substitute = _false;
     }
 }
 

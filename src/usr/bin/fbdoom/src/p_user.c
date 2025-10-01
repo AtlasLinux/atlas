@@ -317,11 +317,11 @@ void P_PlayerThink (player_t* player)
 	if (!player->usedown)
 	{
 	    P_UseLines (player);
-	    player->usedown = true;
+	    player->usedown = _true;
 	}
     }
     else
-	player->usedown = false;
+	player->usedown = _false;
     
     // cycle psprites
     P_MovePsprites (player);

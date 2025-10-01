@@ -450,8 +450,8 @@ P_SetThingPosition (mobj_t* thing)
 // BLOCK MAP ITERATORS
 // For each line/thing in the given mapblock,
 // call the passed PIT_* function.
-// If the function returns false,
-// exit with false without checking anything else.
+// If the function returns _false,
+// exit with _false without checking anything else.
 //
 
 
@@ -478,7 +478,7 @@ P_BlockLinesIterator
 	|| x>=bmapwidth
 	|| y>=bmapheight)
     {
-	return true;
+	return _true;
     }
     
     offset = y*bmapwidth+x;
@@ -495,9 +495,9 @@ P_BlockLinesIterator
 	ld->validcount = validcount;
 		
 	if ( !func(ld) )
-	    return false;
+	    return _false;
     }
-    return true;	// everything was checked
+    return _true;	// everything was checked
 }
 
 
@@ -517,7 +517,7 @@ P_BlockThingsIterator
 	 || x>=bmapwidth
 	 || y>=bmapheight)
     {
-	return true;
+	return _true;
     }
     
 
@@ -526,9 +526,9 @@ P_BlockThingsIterator
 	 mobj = mobj->bnext)
     {
 	if (!func( mobj ) )
-	    return false;
+	    return _false;
     }
-    return true;
+    return _true;
 }
 
 
@@ -553,7 +553,7 @@ static void InterceptsOverrun(int num_intercepts, intercept_t *intercept);
 //
 // A line is crossed if its endpoints
 // are on opposite sides of the trace.
-// Returns true if earlyout and a solid line hit.
+// Returns _true if earlyout and a solid line hit.
 //
 boolean
 PIT_AddLineIntercepts (line_t* ld)
@@ -579,31 +579,31 @@ PIT_AddLineIntercepts (line_t* ld)
     }
     
     if (s1 == s2)
-	return true;	// line isn't crossed
+	return _true;	// line isn't crossed
     
     // hit the line
     P_MakeDivline (ld, &dl);
     frac = P_InterceptVector (&trace, &dl);
 
     if (frac < 0)
-	return true;	// behind source
+	return _true;	// behind source
 	
     // try to early out the check
     if (earlyout
 	&& frac < FRACUNIT
 	&& !ld->backsector)
     {
-	return false;	// stop checking
+	return _false;	// stop checking
     }
     
 	
     intercept_p->frac = frac;
-    intercept_p->isaline = true;
+    intercept_p->isaline = _true;
     intercept_p->d.line = ld;
     InterceptsOverrun(intercept_p - intercepts, intercept_p);
     intercept_p++;
 
-    return true;	// continue
+    return _true;	// continue
 }
 
 
@@ -651,7 +651,7 @@ boolean PIT_AddThingIntercepts (mobj_t* thing)
     s2 = P_PointOnDivlineSide (x2, y2, &trace);
 
     if (s1 == s2)
-	return true;		// line isn't crossed
+	return _true;		// line isn't crossed
 	
     dl.x = x1;
     dl.y = y1;
@@ -661,21 +661,21 @@ boolean PIT_AddThingIntercepts (mobj_t* thing)
     frac = P_InterceptVector (&trace, &dl);
 
     if (frac < 0)
-	return true;		// behind source
+	return _true;		// behind source
 
     intercept_p->frac = frac;
-    intercept_p->isaline = false;
+    intercept_p->isaline = _false;
     intercept_p->d.thing = thing;
     InterceptsOverrun(intercept_p - intercepts, intercept_p);
     intercept_p++;
 
-    return true;		// keep going
+    return _true;		// keep going
 }
 
 
 //
 // P_TraverseIntercepts
-// Returns true if the traverser function returns true
+// Returns _true if the traverser function returns _true
 // for all lines.
 // 
 boolean
@@ -705,7 +705,7 @@ P_TraverseIntercepts
 	}
 	
 	if (dist > maxfrac)
-	    return true;	// checked everything in range		
+	    return _true;	// checked everything in range		
 
 #if 0  // UNUSED
     {
@@ -715,17 +715,17 @@ P_TraverseIntercepts
 	    if (scan->frac > maxfrac)
 		*in++ = *scan;
 	intercept_p = in;
-	return false;
+	return _false;
     }
 #endif
 
         if ( !func (in) )
-	    return false;	// don't bother going farther
+	    return _false;	// don't bother going farther
 
 	in->frac = INT_MAX;
     }
 	
-    return true;		// everything was traversed
+    return _true;		// everything was traversed
 }
 
 extern fixed_t bulletslope;
@@ -752,29 +752,29 @@ typedef struct
 
 static intercepts_overrun_t intercepts_overrun[] =
 {
-    {4,   NULL,                          false},
-    {4,   NULL, /* &earlyout, */         false},
-    {4,   NULL, /* &intercept_p, */      false},
-    {4,   &lowfloor,                     false},
-    {4,   &openbottom,                   false},
-    {4,   &opentop,                      false},
-    {4,   &openrange,                    false},
-    {4,   NULL,                          false},
-    {120, NULL, /* &activeplats, */      false},
-    {8,   NULL,                          false},
-    {4,   &bulletslope,                  false},
-    {4,   NULL, /* &swingx, */           false},
-    {4,   NULL, /* &swingy, */           false},
-    {4,   NULL,                          false},
-    {40,  &playerstarts,                 true},
-    {4,   NULL, /* &blocklinks, */       false},
-    {4,   &bmapwidth,                    false},
-    {4,   NULL, /* &blockmap, */         false},
-    {4,   &bmaporgx,                     false},
-    {4,   &bmaporgy,                     false},
-    {4,   NULL, /* &blockmaplump, */     false},
-    {4,   &bmapheight,                   false},
-    {0,   NULL,                          false},
+    {4,   NULL,                          _false},
+    {4,   NULL, /* &earlyout, */         _false},
+    {4,   NULL, /* &intercept_p, */      _false},
+    {4,   &lowfloor,                     _false},
+    {4,   &openbottom,                   _false},
+    {4,   &opentop,                      _false},
+    {4,   &openrange,                    _false},
+    {4,   NULL,                          _false},
+    {120, NULL, /* &activeplats, */      _false},
+    {8,   NULL,                          _false},
+    {4,   &bulletslope,                  _false},
+    {4,   NULL, /* &swingx, */           _false},
+    {4,   NULL, /* &swingy, */           _false},
+    {4,   NULL,                          _false},
+    {40,  &playerstarts,                 _true},
+    {4,   NULL, /* &blocklinks, */       _false},
+    {4,   &bmapwidth,                    _false},
+    {4,   NULL, /* &blockmap, */         _false},
+    {4,   &bmaporgx,                     _false},
+    {4,   &bmaporgy,                     _false},
+    {4,   NULL, /* &blockmaplump, */     _false},
+    {4,   &bmapheight,                   _false},
+    {0,   NULL,                          _false},
 };
 
 // Overwrite a specific memory location with a value.
@@ -854,7 +854,7 @@ static void InterceptsOverrun(int num_intercepts, intercept_t *intercept)
 // P_PathTraverse
 // Traces a line from x1,y1 to x2,y2,
 // calling the traverser function for each.
-// Returns true if the traverser function returns true
+// Returns _true if the traverser function returns _true
 // for all lines.
 //
 boolean
@@ -966,13 +966,13 @@ P_PathTraverse
 	if (flags & PT_ADDLINES)
 	{
 	    if (!P_BlockLinesIterator (mapx, mapy,PIT_AddLineIntercepts))
-		return false;	// early out
+		return _false;	// early out
 	}
 	
 	if (flags & PT_ADDTHINGS)
 	{
 	    if (!P_BlockThingsIterator (mapx, mapy,PIT_AddThingIntercepts))
-		return false;	// early out
+		return _false;	// early out
 	}
 		
 	if (mapx == xt2

@@ -111,16 +111,16 @@ void F_StartFinale (void)
 
     gameaction = ga_nothing;
     gamestate = GS_FINALE;
-    viewactive = false;
-    automapactive = false;
+    viewactive = _false;
+    automapactive = _false;
 
     if (logical_gamemission == doom)
     {
-        S_ChangeMusic(mus_victor, true);
+        S_ChangeMusic(mus_victor, _true);
     }
     else
     {
-        S_ChangeMusic(mus_read_m, true);
+        S_ChangeMusic(mus_read_m, _true);
     }
 
     // Find the right screen and set the text and background
@@ -162,7 +162,7 @@ boolean F_Responder (event_t *event)
     if (finalestage == F_STAGE_CAST)
 	return F_CastResponder (event);
 	
-    return false;
+    return _false;
 }
 
 
@@ -343,12 +343,12 @@ void F_StartCast (void)
     castnum = 0;
     caststate = &states[mobjinfo[castorder[castnum].type].seestate];
     casttics = caststate->tics;
-    castdeath = false;
+    castdeath = _false;
     finalestage = F_STAGE_CAST;
     castframes = 0;
     castonmelee = 0;
-    castattacking = false;
-    S_ChangeMusic(mus_evil, true);
+    castattacking = _false;
+    S_ChangeMusic(mus_evil, _true);
 }
 
 
@@ -367,7 +367,7 @@ void F_CastTicker (void)
     {
 	// switch from deathstate to next monster
 	castnum++;
-	castdeath = false;
+	castdeath = _false;
 	if (castorder[castnum].name == NULL)
 	    castnum = 0;
 	if (mobjinfo[castorder[castnum].type].seesound)
@@ -423,7 +423,7 @@ void F_CastTicker (void)
     if (castframes == 12)
     {
 	// go into attack frame
-	castattacking = true;
+	castattacking = _true;
 	if (castonmelee)
 	    caststate=&states[mobjinfo[castorder[castnum].type].meleestate];
 	else
@@ -446,7 +446,7 @@ void F_CastTicker (void)
 	    ||	caststate == &states[mobjinfo[castorder[castnum].type].seestate] )
 	{
 	  stopattack:
-	    castattacking = false;
+	    castattacking = _false;
 	    castframes = 0;
 	    caststate = &states[mobjinfo[castorder[castnum].type].seestate];
 	}
@@ -465,21 +465,21 @@ void F_CastTicker (void)
 boolean F_CastResponder (event_t* ev)
 {
     if (ev->type != ev_keydown)
-	return false;
+	return _false;
 		
     if (castdeath)
-	return true;			// already in dying frames
+	return _true;			// already in dying frames
 		
     // go into death frame
-    castdeath = true;
+    castdeath = _true;
     caststate = &states[mobjinfo[castorder[castnum].type].deathstate];
     casttics = caststate->tics;
     castframes = 0;
-    castattacking = false;
+    castattacking = _false;
     if (mobjinfo[castorder[castnum].type].deathsound)
 	S_StartSound (NULL, mobjinfo[castorder[castnum].type].deathsound);
 	
-    return true;
+    return _true;
 }
 
 

@@ -140,7 +140,7 @@ void S_Init(int sfxVolume, int musicVolume)
         S_sfx[i].lumpnum = S_sfx[i].usefulness = -1;
     }
 
-    I_AtExit(S_Shutdown, true);
+    I_AtExit(S_Shutdown, _true);
 }
 
 void S_Shutdown(void)
@@ -237,7 +237,7 @@ void S_Start(void)
         }
     }        
 
-    S_ChangeMusic(mnum, true);
+    S_ChangeMusic(mnum, _true);
 }        
 
 void S_StopSound(mobj_t *origin)
@@ -484,7 +484,7 @@ void S_PauseSound(void)
     if (mus_playing && !mus_paused)
     {
         I_PauseSong();
-        mus_paused = true;
+        mus_paused = _true;
     }
 }
 
@@ -493,7 +493,7 @@ void S_ResumeSound(void)
     if (mus_playing && mus_paused)
     {
         I_ResumeSong();
-        mus_paused = false;
+        mus_paused = _false;
     }
 }
 
@@ -595,7 +595,7 @@ void S_SetSfxVolume(int volume)
 
 void S_StartMusic(int m_id)
 {
-    S_ChangeMusic(m_id, false);
+    S_ChangeMusic(m_id, _false);
 }
 
 void S_ChangeMusic(int musicnum, int looping)

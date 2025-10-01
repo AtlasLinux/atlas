@@ -74,9 +74,9 @@ int fd_fb = 0;
 int	X_width;
 int X_height;
 
-// If true, game is running as a screensaver
+// If _true, game is running as a screensaver
 
-boolean screensaver_mode = false;
+boolean screensaver_mode = _false;
 
 // Flag indicating whether the screen is currently visible:
 // when the screen isnt visible, don't render the screen
@@ -200,7 +200,7 @@ void I_InitGraphics (void)
 	I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);  // For DOOM to draw on
 	I_VideoBuffer_FB = (byte*)malloc(fb.xres * fb.yres * (fb.bits_per_pixel/8));     // For a single write() syscall to fbdev
 
-	screenvisible = true;
+	screenvisible = _true;
 
     extern int I_InitInput(void);
     I_InitInput();

@@ -61,7 +61,7 @@ void I_Endoom(byte *endoom_data)
 
     // Wait for a keypress
 
-    while (true)
+    while (_true)
     {
         TXT_UpdateScreen();
 

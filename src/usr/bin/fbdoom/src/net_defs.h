@@ -73,7 +73,7 @@ struct _net_module_s
 
     // Check for new packets to receive
     //
-    // Returns true if packet received
+    // Returns _true if packet received
 
     boolean (*RecvPacket)(net_addr_t **addr, net_packet_t **packet);
 

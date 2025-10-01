@@ -40,7 +40,7 @@ cht_CheckCheat
     // will not work in vanilla doom.  behave the same.
 
     if (cht->parameter_chars > 0 && strlen(cht->sequence) < cht->sequence_len)
-        return false;
+        return _false;
     
     if (cht->chars_read < strlen(cht->sequence))
     {
@@ -70,12 +70,12 @@ cht_CheckCheat
     {
         cht->chars_read = cht->param_chars_read = 0;
 
-        return true;
+        return _true;
     }
     
     // cheat not matched yet
 
-    return false;
+    return _false;
 }
 
 void

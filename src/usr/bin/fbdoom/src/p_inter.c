@@ -59,7 +59,7 @@ int	clipammo[NUMAMMO] = {10, 4, 20, 1};
 // P_GiveAmmo
 // Num is the number of clip loads,
 // not the individual count (0= 1/2 clip).
-// Returns false if the ammo can't be picked up at all
+// Returns _false if the ammo can't be picked up at all
 //
 
 boolean
@@ -71,13 +71,13 @@ P_GiveAmmo
     int		oldammo;
 	
     if (ammo == am_noammo)
-	return false;
+	return _false;
 		
     if (ammo > NUMAMMO)
 	I_Error ("P_GiveAmmo: bad type %i", ammo);
 		
     if ( player->ammo[ammo] == player->maxammo[ammo]  )
-	return false;
+	return _false;
 		
     if (num)
 	num *= clipammo[ammo];
@@ -103,7 +103,7 @@ P_GiveAmmo
     // don't change up weapons,
     // player was lower on purpose.
     if (oldammo)
-	return true;	
+	return _true;	
 
     // We were down to zero,
     // so select a new weapon.
@@ -148,7 +148,7 @@ P_GiveAmmo
 	break;
     }
 	
-    return true;
+    return _true;
 }
 
 
@@ -169,10 +169,10 @@ P_GiveWeapon
 	{
 		// leave placed weapons forever on net games
 		if (player->weaponowned[weapon])
-			return false;
+			return _false;
 
 		player->bonuscount += BONUSADD;
-		player->weaponowned[weapon] = true;
+		player->weaponowned[weapon] = _true;
 	
 		if (deathmatch)
 			P_GiveAmmo (player, weaponinfo[weapon].ammo, 5);
@@ -182,7 +182,7 @@ P_GiveWeapon
 
 		if (player == &players[consoleplayer])
 			S_StartSound (NULL, sfx_wpnup);
-		return false;
+		return _false;
     }
 	
     if (weaponinfo[weapon].ammo != am_noammo)
@@ -196,17 +196,17 @@ P_GiveWeapon
     }
     else
     {
-    	gaveammo = false;
+    	gaveammo = _false;
     }
 	
     if (player->weaponowned[weapon])
     {
-    	gaveweapon = false;
+    	gaveweapon = _false;
     }
     else
     {
-		gaveweapon = true;
-		player->weaponowned[weapon] = true;
+		gaveweapon = _true;
+		player->weaponowned[weapon] = _true;
 		player->pendingweapon = weapon;
     }
 	
@@ -217,7 +217,7 @@ P_GiveWeapon
 
 //
 // P_GiveBody
-// Returns false if the body isn't needed at all
+// Returns _false if the body isn't needed at all
 //
 boolean
 P_GiveBody
@@ -225,21 +225,21 @@ P_GiveBody
   int		num )
 {
     if (player->health >= MAXHEALTH)
-	return false;
+	return _false;
 		
     player->health += num;
     if (player->health > MAXHEALTH)
 	player->health = MAXHEALTH;
     player->mo->health = player->health;
 	
-    return true;
+    return _true;
 }
 
 
 
 //
 // P_GiveArmor
-// Returns false if the armor is worse
+// Returns _false if the armor is worse
 // than the current armor.
 //
 boolean
@@ -251,12 +251,12 @@ P_GiveArmor
 	
     hits = armortype*100;
     if (player->armorpoints >= hits)
-	return false;	// don't pick up
+	return _false;	// don't pick up
 		
     player->armortype = armortype;
     player->armorpoints = hits;
 	
-    return true;
+    return _true;
 }
 
 
@@ -288,40 +288,40 @@ P_GivePower
     if (power == pw_invulnerability)
     {
 	player->powers[power] = INVULNTICS;
-	return true;
+	return _true;
     }
     
     if (power == pw_invisibility)
     {
 	player->powers[power] = INVISTICS;
 	player->mo->flags |= MF_SHADOW;
-	return true;
+	return _true;
     }
     
     if (power == pw_infrared)
     {
 	player->powers[power] = INFRATICS;
-	return true;
+	return _true;
     }
     
     if (power == pw_ironfeet)
     {
 	player->powers[power] = IRONTICS;
-	return true;
+	return _true;
     }
     
     if (power == pw_strength)
     {
 	P_GiveBody (player, 100);
 	player->powers[power] = 1;
-	return true;
+	return _true;
     }
 	
     if (player->powers[power])
-	return false;	// already got it
+	return _false;	// already got it
 		
     player->powers[power] = 1;
-    return true;
+    return _true;
 }
 
 
@@ -589,7 +589,7 @@ P_TouchSpecialThing
 	{
 	    for (i=0 ; i<NUMAMMO ; i++)
 		player->maxammo[i] *= 2;
-	    player->backpack = true;
+	    player->backpack = _true;
 	}
 	for (i=0 ; i<NUMAMMO ; i++)
 	    P_GiveAmmo (player, i, 1);
@@ -598,7 +598,7 @@ P_TouchSpecialThing
 	
 	// weapons
       case SPR_BFUG:
-	if (!P_GiveWeapon (player, wp_bfg, false) )
+	if (!P_GiveWeapon (player, wp_bfg, _false) )
 	    return;
 	player->message = DEH_String(GOTBFG9000);
 	sound = sfx_wpnup;	
@@ -612,21 +612,21 @@ P_TouchSpecialThing
 	break;
 	
       case SPR_CSAW:
-	if (!P_GiveWeapon (player, wp_chainsaw, false) )
+	if (!P_GiveWeapon (player, wp_chainsaw, _false) )
 	    return;
 	player->message = DEH_String(GOTCHAINSAW);
 	sound = sfx_wpnup;	
 	break;
 	
       case SPR_LAUN:
-	if (!P_GiveWeapon (player, wp_missile, false) )
+	if (!P_GiveWeapon (player, wp_missile, _false) )
 	    return;
 	player->message = DEH_String(GOTLAUNCHER);
 	sound = sfx_wpnup;	
 	break;
 	
       case SPR_PLAS:
-	if (!P_GiveWeapon (player, wp_plasma, false) )
+	if (!P_GiveWeapon (player, wp_plasma, _false) )
 	    return;
 	player->message = DEH_String(GOTPLASMA);
 	sound = sfx_wpnup;	

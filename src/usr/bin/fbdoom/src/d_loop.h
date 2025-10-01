@@ -23,7 +23,7 @@
 
 // Callback function invoked while waiting for the netgame to start.
 // The callback is invoked when new players are ready. The callback
-// should return true, or return false to abort startup.
+// should return _true, or return _false to abort startup.
 
 typedef boolean (*netgame_startup_callback_t)(int ready_players,
                                               int num_players);

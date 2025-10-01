@@ -80,7 +80,7 @@ typedef struct
     // use the 'untranslated' value.
     int original_translated;
 
-    // If true, this config variable has been bound to a variable
+    // If _true, this config variable has been bound to a variable
     // and is being used.
     boolean bound;
 } default_t;
@@ -93,7 +93,7 @@ typedef struct
 } default_collection_t;
 
 #define CONFIG_VARIABLE_GENERIC(name, type) \
-    { #name, NULL, type, 0, 0, false }
+    { #name, NULL, type, 0, 0, _false }
 
 #define CONFIG_VARIABLE_KEY(name) \
     CONFIG_VARIABLE_GENERIC(name, DEFAULT_KEY)
@@ -1968,7 +1968,7 @@ void M_BindVariable(char *name, void *location)
     variable = GetDefaultForName(name);
 
     variable->location = location;
-    variable->bound = true;
+    variable->bound = _true;
 }
 
 // Set the value of a particular variable; an API function for other
@@ -1982,12 +1982,12 @@ boolean M_SetVariable(char *name, char *value)
 
     if (variable == NULL || !variable->bound)
     {
-        return false;
+        return _false;
     }
 
     SetVariable(variable, value);
 
-    return true;
+    return _true;
 }
 
 // Get the value of a variable.

@@ -82,7 +82,7 @@ wipe_doColorXForm
     byte*	e;
     int		newval;
 
-    changed = false;
+    changed = _false;
     w = wipe_scr;
     e = wipe_scr_end;
     
@@ -97,7 +97,7 @@ wipe_doColorXForm
 		    *w = *e;
 		else
 		    *w = newval;
-		changed = true;
+		changed = _true;
 	    }
 	    else if (*w < *e)
 	    {
@@ -106,7 +106,7 @@ wipe_doColorXForm
 		    *w = *e;
 		else
 		    *w = newval;
-		changed = true;
+		changed = _true;
 	    }
 	}
 	w++;
@@ -173,7 +173,7 @@ wipe_doMelt
     
     short*	s;
     short*	d;
-    boolean	done = true;
+    boolean	done = _true;
 
     width/=2;
 
@@ -183,7 +183,7 @@ wipe_doMelt
 	{
 	    if (y[i]<0)
 	    {
-		y[i]++; done = false;
+		y[i]++; done = _false;
 	    }
 	    else if (y[i] < height)
 	    {
@@ -206,7 +206,7 @@ wipe_doMelt
 		    d[idx] = *(s++);
 		    idx += width;
 		}
-		done = false;
+		done = _false;
 	    }
 	}
     }

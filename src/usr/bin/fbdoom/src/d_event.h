@@ -83,7 +83,7 @@ typedef enum
     BT_SPECIALMASK	= 3,
     
     // Flag, weapon change pending.
-    // If true, the next 3 bits hold weapon num.
+    // If _true, the next 3 bits hold weapon num.
     BT_CHANGE		= 4,
     // The 3bit weapon mask and shift, convenience.
     BT_WEAPONMASK	= (8+16+32),

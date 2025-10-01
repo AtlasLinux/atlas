@@ -294,9 +294,9 @@ static const unsigned int volume_mapping_table[] = {
     124, 124, 125, 125, 126, 126, 127, 127
 };
 
-static boolean music_initialized = false;
+static boolean music_initialized = _false;
 
-//static boolean musicpaused = false;
+//static boolean musicpaused = _false;
 static int current_music_volume;
 
 // GENMIDI lump instrument data:
@@ -348,7 +348,7 @@ static boolean LoadInstrumentTable(void)
     {
         W_ReleaseLumpName("GENMIDI");
 
-        return false;
+        return _false;
     }
 
     main_instrs = (genmidi_instr_t *) (lump + strlen(GENMIDI_HEADER));
@@ -356,7 +356,7 @@ static boolean LoadInstrumentTable(void)
     main_instr_names = (char (*)[32]) (percussion_instrs + GENMIDI_NUM_PERCUSSION);
     percussion_names = main_instr_names + GENMIDI_NUM_INSTRS;
 
-    return true;
+    return _true;
 }
 
 // Get the next available voice from the freelist.
@@ -489,7 +489,7 @@ static void SetVoiceInstrument(opl_voice_t *voice,
     // is set in SetVoiceVolume (below).  If we are not using
     // modulating mode, we must set both to minimum volume.
 
-    LoadOperatorData(voice->op2, &data->carrier, true);
+    LoadOperatorData(voice->op2, &data->carrier, _true);
     LoadOperatorData(voice->op1, &data->modulator, !modulating);
 
     // Set feedback register that control the connection between the
@@ -1439,7 +1439,7 @@ static boolean I_OPL_MusicIsPlaying(void)
 {
     if (!music_initialized)
     {
-        return false;
+        return _false;
     }
 
     return num_tracks > 0;
@@ -1461,7 +1461,7 @@ static void I_OPL_ShutdownMusic(void)
 
         W_ReleaseLumpName("GENMIDI");
 
-        music_initialized = false;
+        music_initialized = _false;
     }
 }
 
@@ -1474,7 +1474,7 @@ static boolean I_OPL_InitMusic(void)
     if (!OPL_Init(opl_io_port))
     {
         printf("Dude.  The Adlib isn't responding.\n");
-        return false;
+        return _false;
     }
 
     // Load instruments from GENMIDI lump:
@@ -1482,16 +1482,16 @@ static boolean I_OPL_InitMusic(void)
     if (!LoadInstrumentTable())
     {
         OPL_Shutdown();
-        return false;
+        return _false;
     }
 
     InitVoices();
 
     tracks = NULL;
     num_tracks = 0;
-    music_initialized = true;
+    music_initialized = _true;
 
-    return true;
+    return _true;
 }
 
 static snddevice_t music_opl_devices[] =

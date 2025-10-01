@@ -120,11 +120,11 @@ static boolean SndDeviceInList(snddevice_t device, snddevice_t *list,
     {
         if (device == list[i])
         {
-            return true;
+            return _true;
         }
     }
 
-    return false;
+    return _false;
 }
 
 // Find and initialize a sound_module_t appropriate for the setting
@@ -342,7 +342,7 @@ boolean I_SoundIsPlaying(int channel)
     }
     else
     {
-        return false;
+        return _false;
     }
 }
 
@@ -431,7 +431,7 @@ boolean I_MusicIsPlaying(void)
     }
     else
     {
-        return false;
+        return _false;
     }
 }
 

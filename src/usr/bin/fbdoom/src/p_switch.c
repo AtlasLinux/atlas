@@ -285,7 +285,7 @@ P_UseSpecialLine
 	    break;
 
 	  default:
-	    return false;
+	    return _false;
 	    break;
 	}
     }
@@ -296,7 +296,7 @@ P_UseSpecialLine
     {
 	// never open secret doors
 	if (line->flags & ML_SECRET)
-	    return false;
+	    return _false;
 	
 	switch(line->special)
 	{
@@ -307,7 +307,7 @@ P_UseSpecialLine
 	    break;
 	    
 	  default:
-	    return false;
+	    return _false;
 	    break;
 	}
     }
@@ -643,6 +643,6 @@ P_UseSpecialLine
 			
     }
 	
-    return true;
+    return _true;
 }
 

@@ -197,7 +197,7 @@ static int 	grid = 0;
 
 static int 	leveljuststarted = 1; 	// kluge until AM_LevelInit() is called
 
-boolean    	automapactive = false;
+boolean    	automapactive = _false;
 static int 	finit_width = SCREENWIDTH;
 static int 	finit_height = SCREENHEIGHT - 32;
 
@@ -265,7 +265,7 @@ static int followplayer = 1; // specifies whether to follow the player around
 
 cheatseq_t cheat_amap = CHEAT("iddt", 0);
 
-static boolean stopped = true;
+static boolean stopped = _true;
 
 // Calculates the slope and slope according to the x-axis of a line
 // segment in map coordinates (with the upright y-axis n' all) so
@@ -426,7 +426,7 @@ void AM_initVariables(void)
     int pnum;
     static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0 };
 
-    automapactive = true;
+    automapactive = _true;
     fb = I_VideoBuffer;
 
     f_oldloc.x = INT_MAX;
@@ -543,9 +543,9 @@ void AM_Stop (void)
     static event_t st_notify = { 0, ev_keyup, AM_MSGEXITED, 0 };
 
     AM_unloadPics();
-    automapactive = false;
+    automapactive = _false;
     ST_Responder(&st_notify);
-    stopped = true;
+    stopped = _true;
 }
 
 //
@@ -556,7 +556,7 @@ void AM_Start (void)
     static int lastlevel = -1, lastepisode = -1;
 
     if (!stopped) AM_Stop();
-    stopped = false;
+    stopped = _false;
     if (lastlevel != gamemap || lastepisode != gameepisode)
     {
 	AM_LevelInit();
@@ -601,41 +601,41 @@ AM_Responder
     static char buffer[20];
     int key;
 
-    rc = false;
+    rc = _false;
 
     if (!automapactive)
     {
 	if (ev->type == ev_keydown && ev->data1 == key_map_toggle)
 	{
 	    AM_Start ();
-	    viewactive = false;
-	    rc = true;
+	    viewactive = _false;
+	    rc = _true;
 	}
     }
     else if (ev->type == ev_keydown)
     {
-	rc = true;
+	rc = _true;
         key = ev->data1;
 
         if (key == key_map_east)          // pan right
         {
             if (!followplayer) m_paninc.x = FTOM(F_PANINC);
-            else rc = false;
+            else rc = _false;
         }
         else if (key == key_map_west)     // pan left
         {
             if (!followplayer) m_paninc.x = -FTOM(F_PANINC);
-            else rc = false;
+            else rc = _false;
         }
         else if (key == key_map_north)    // pan up
         {
             if (!followplayer) m_paninc.y = FTOM(F_PANINC);
-            else rc = false;
+            else rc = _false;
         }
         else if (key == key_map_south)    // pan down
         {
             if (!followplayer) m_paninc.y = -FTOM(F_PANINC);
-            else rc = false;
+            else rc = _false;
         }
         else if (key == key_map_zoomout)  // zoom out
         {
@@ -650,7 +650,7 @@ AM_Responder
         else if (key == key_map_toggle)
         {
             bigstate = 0;
-            viewactive = true;
+            viewactive = _true;
             AM_Stop ();
         }
         else if (key == key_map_maxzoom)
@@ -694,18 +694,18 @@ AM_Responder
         }
         else
         {
-            rc = false;
+            rc = _false;
         }
 
 	if (!deathmatch && cht_CheckCheat(&cheat_amap, ev->data2))
 	{
-	    rc = false;
+	    rc = _false;
 	    cheating = (cheating+1) % 3;
 	}
     }
     else if (ev->type == ev_keyup)
     {
-        rc = false;
+        rc = _false;
         key = ev->data1;
 
         if (key == key_map_east)
@@ -886,7 +886,7 @@ AM_clipMline
 	outcode2 = BOTTOM;
     
     if (outcode1 & outcode2)
-	return false; // trivially outside
+	return _false; // trivially outside
 
     if (ml->a.x < m_x)
 	outcode1 |= LEFT;
@@ -899,7 +899,7 @@ AM_clipMline
 	outcode2 |= RIGHT;
     
     if (outcode1 & outcode2)
-	return false; // trivially outside
+	return _false; // trivially outside
 
     // transform to frame-buffer coordinates.
     fl->a.x = CXMTOF(ml->a.x);
@@ -911,7 +911,7 @@ AM_clipMline
     DOOUTCODE(outcode2, fl->b.x, fl->b.y);
 
     if (outcode1 & outcode2)
-	return false;
+	return _false;
 
     while (outcode1 | outcode2)
     {
@@ -969,10 +969,10 @@ AM_clipMline
 	}
 	
 	if (outcode1 & outcode2)
-	    return false; // trivially outside
+	    return _false; // trivially outside
     }
 
-    return true;
+    return _true;
 }
 #undef DOOUTCODE
 

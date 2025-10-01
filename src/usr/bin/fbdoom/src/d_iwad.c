@@ -57,7 +57,7 @@ static const iwad_t iwads[] =
 
 #define MAX_IWAD_DIRS 128
 
-static boolean iwad_dirs_built = false;
+static boolean iwad_dirs_built = _false;
 static char *iwad_dirs[MAX_IWAD_DIRS];
 static int num_iwad_dirs = 0;
 
@@ -385,7 +385,7 @@ static void CheckDOSDefaults(void)
 
 #endif
 
-// Returns true if the specified path is a path to a file
+// Returns _true if the specified path is a path to a file
 // of the specified name.
 
 static boolean DirIsFile(char *path, char *filename)
@@ -615,7 +615,7 @@ static void BuildIWADDirList(void)
 
     // Don't run this function again.
 
-    iwad_dirs_built = true;
+    iwad_dirs_built = _true;
 #endif
 }
 

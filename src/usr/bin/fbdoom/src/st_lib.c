@@ -243,7 +243,7 @@ STlib_initBinIcon
 {
     b->x	= x;
     b->y	= y;
-    b->oldval	= false;
+    b->oldval	= _false;
     b->val	= val;
     b->on	= on;
     b->p	= i;

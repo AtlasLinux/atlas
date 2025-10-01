@@ -90,14 +90,14 @@ static boolean I_Scale1x(int x1, int y1, int x2, int y2)
         bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_scale_1x = {
     SCREENWIDTH, SCREENHEIGHT,
     NULL,
     I_Scale1x,
-    false,
+    _false,
 };
 
 // 2x scale (640x400)
@@ -131,14 +131,14 @@ static boolean I_Scale2x(int x1, int y1, int x2, int y2)
         bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_scale_2x = {
     SCREENWIDTH * 2, SCREENHEIGHT * 2,
     NULL,
     I_Scale2x,
-    false,
+    _false,
 };
 
 // 3x scale (960x600)
@@ -176,14 +176,14 @@ static boolean I_Scale3x(int x1, int y1, int x2, int y2)
         bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_scale_3x = {
     SCREENWIDTH * 3, SCREENHEIGHT * 3,
     NULL,
     I_Scale3x,
-    false,
+    _false,
 };
 
 // 4x scale (1280x800)
@@ -225,14 +225,14 @@ static boolean I_Scale4x(int x1, int y1, int x2, int y2)
         bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_scale_4x = {
     SCREENWIDTH * 4, SCREENHEIGHT * 4,
     NULL,
     I_Scale4x,
-    false,
+    _false,
 };
 
 // 5x scale (1600x1000)
@@ -278,14 +278,14 @@ static boolean I_Scale5x(int x1, int y1, int x2, int y2)
         bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_scale_5x = {
     SCREENWIDTH * 5, SCREENHEIGHT * 5,
     NULL,
     I_Scale5x,
-    false,
+    _false,
 };
 
 
@@ -456,7 +456,7 @@ static boolean I_Stretch1x(int x1, int y1, int x2, int y2)
 
     if (x1 != 0 || y1 != 0 || x2 != SCREENWIDTH || y2 != SCREENHEIGHT)
     {
-        return false;
+        return _false;
     }    
 
     // Need to byte-copy from buffer into the screen buffer
@@ -494,14 +494,14 @@ static boolean I_Stretch1x(int x1, int y1, int x2, int y2)
         screenp += dest_pitch; bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_stretch_1x = {
     SCREENWIDTH, SCREENHEIGHT_4_3,
     I_InitStretchTables,
     I_Stretch1x,
-    true,
+    _true,
 };
 
 static inline void WriteLine2x(byte *dest, byte *src)
@@ -545,7 +545,7 @@ static boolean I_Stretch2x(int x1, int y1, int x2, int y2)
 
     if (x1 != 0 || y1 != 0 || x2 != SCREENWIDTH || y2 != SCREENHEIGHT)
     {
-        return false;
+        return _false;
     }    
 
     // Need to byte-copy from buffer into the screen buffer
@@ -607,14 +607,14 @@ static boolean I_Stretch2x(int x1, int y1, int x2, int y2)
         screenp += dest_pitch; bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_stretch_2x = {
     SCREENWIDTH * 2, SCREENHEIGHT_4_3 * 2,
     I_InitStretchTables,
     I_Stretch2x,
-    false,
+    _false,
 };
 
 static inline void WriteLine3x(byte *dest, byte *src)
@@ -660,7 +660,7 @@ static boolean I_Stretch3x(int x1, int y1, int x2, int y2)
 
     if (x1 != 0 || y1 != 0 || x2 != SCREENWIDTH || y2 != SCREENHEIGHT)
     {
-        return false;
+        return _false;
     }    
 
     // Need to byte-copy from buffer into the screen buffer
@@ -746,14 +746,14 @@ static boolean I_Stretch3x(int x1, int y1, int x2, int y2)
         screenp += dest_pitch; bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_stretch_3x = {
     SCREENWIDTH * 3, SCREENHEIGHT_4_3 * 3,
     I_InitStretchTables,
     I_Stretch3x,
-    false,
+    _false,
 };
 
 static inline void WriteLine4x(byte *dest, byte *src)
@@ -801,7 +801,7 @@ static boolean I_Stretch4x(int x1, int y1, int x2, int y2)
 
     if (x1 != 0 || y1 != 0 || x2 != SCREENWIDTH || y2 != SCREENHEIGHT)
     {
-        return false;
+        return _false;
     }    
 
     // Need to byte-copy from buffer into the screen buffer
@@ -911,14 +911,14 @@ static boolean I_Stretch4x(int x1, int y1, int x2, int y2)
         screenp += dest_pitch; bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_stretch_4x = {
     SCREENWIDTH * 4, SCREENHEIGHT_4_3 * 4,
     I_InitStretchTables,
     I_Stretch4x,
-    false,
+    _false,
 };
 
 static inline void WriteLine5x(byte *dest, byte *src)
@@ -948,7 +948,7 @@ static boolean I_Stretch5x(int x1, int y1, int x2, int y2)
 
     if (x1 != 0 || y1 != 0 || x2 != SCREENWIDTH || y2 != SCREENHEIGHT)
     {
-        return false;
+        return _false;
     }    
 
     // Need to byte-copy from buffer into the screen buffer
@@ -1001,14 +1001,14 @@ static boolean I_Stretch5x(int x1, int y1, int x2, int y2)
         }
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_stretch_5x = {
     SCREENWIDTH * 5, SCREENHEIGHT_4_3 * 5,
     I_InitStretchTables,
     I_Stretch5x,
-    false,
+    _false,
 };
 
 //
@@ -1067,7 +1067,7 @@ static boolean I_Squash1x(int x1, int y1, int x2, int y2)
 
     if (x1 != 0 || y1 != 0 || x2 != SCREENWIDTH || y2 != SCREENHEIGHT)
     {
-        return false;
+        return _false;
     }    
 
     bufp = src_buffer;
@@ -1081,14 +1081,14 @@ static boolean I_Squash1x(int x1, int y1, int x2, int y2)
         bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_squash_1x = {
     SCREENWIDTH_4_3, SCREENHEIGHT,
     I_InitStretchTables,
     I_Squash1x,
-    true,
+    _true,
 };
 
 
@@ -1166,7 +1166,7 @@ static boolean I_Squash2x(int x1, int y1, int x2, int y2)
 
     if (x1 != 0 || y1 != 0 || x2 != SCREENWIDTH || y2 != SCREENHEIGHT)
     {
-        return false;
+        return _false;
     }    
 
     bufp = src_buffer;
@@ -1180,14 +1180,14 @@ static boolean I_Squash2x(int x1, int y1, int x2, int y2)
         bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_squash_2x = {
     SCREENWIDTH_4_3 * 2, SCREENHEIGHT * 2,
     I_InitStretchTables,
     I_Squash2x,
-    false,
+    _false,
 };
 
 
@@ -1249,7 +1249,7 @@ static boolean I_Squash3x(int x1, int y1, int x2, int y2)
 
     if (x1 != 0 || y1 != 0 || x2 != SCREENWIDTH || y2 != SCREENHEIGHT)
     {
-        return false;
+        return _false;
     }    
 
     bufp = src_buffer;
@@ -1263,14 +1263,14 @@ static boolean I_Squash3x(int x1, int y1, int x2, int y2)
         bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_squash_3x = {
     800, 600,
     I_InitSquashTable,
     I_Squash3x,
-    false,
+    _false,
 };
 
 #define DRAW_PIXEL4 \
@@ -1360,7 +1360,7 @@ static boolean I_Squash4x(int x1, int y1, int x2, int y2)
 
     if (x1 != 0 || y1 != 0 || x2 != SCREENWIDTH || y2 != SCREENHEIGHT)
     {
-        return false;
+        return _false;
     }    
 
     bufp = src_buffer;
@@ -1374,14 +1374,14 @@ static boolean I_Squash4x(int x1, int y1, int x2, int y2)
         bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_squash_4x = {
     SCREENWIDTH_4_3 * 4, SCREENHEIGHT * 4,
     I_InitStretchTables,
     I_Squash4x,
-    false,
+    _false,
 };
 
 #define DRAW_PIXEL5 \
@@ -1425,7 +1425,7 @@ static boolean I_Squash5x(int x1, int y1, int x2, int y2)
 
     if (x1 != 0 || y1 != 0 || x2 != SCREENWIDTH || y2 != SCREENHEIGHT)
     {
-        return false;
+        return _false;
     }    
 
     bufp = src_buffer;
@@ -1439,14 +1439,14 @@ static boolean I_Squash5x(int x1, int y1, int x2, int y2)
         bufp += SCREENWIDTH;
     }
 
-    return true;
+    return _true;
 }
 
 screen_mode_t mode_squash_5x = {
     SCREENWIDTH_4_3 * 5, SCREENHEIGHT * 5,
     I_InitStretchTables,
     I_Squash5x,
-    false,
+    _false,
 };
 
 

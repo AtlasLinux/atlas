@@ -183,7 +183,7 @@ typedef struct
 {
     int		epsd;	// episode # (0-2)
 
-    // if true, splash the secret level
+    // if _true, splash the secret level
     boolean	didsecret;
     
     // previous and next levels, origin 0

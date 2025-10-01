@@ -45,11 +45,11 @@
 
 static SDL_Surface *screen;
 
-// If true, keyboard mapping is ignored, like in Vanilla Doom.
+// If _true, keyboard mapping is ignored, like in Vanilla Doom.
 // The sensible thing to do is to disable this if you have a non-US
 // keyboard.
 
-int vanilla_keyboard_mapping = true;
+int vanilla_keyboard_mapping = _true;
 
 // Is the shift key currently down?
 

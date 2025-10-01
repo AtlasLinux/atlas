@@ -417,7 +417,7 @@
 "final confrontation with that terrible\n"\
 "beast from hell.  but you stepped forward\n"\
 "and brought forth eternal damnation and\n"\
-"suffering upon the horde as a true hero\n"\
+"suffering upon the horde as a _true hero\n"\
 "would in the face of something so evil.\n"\
 "\n"\
 "besides, someone was gonna pay for what\n"\

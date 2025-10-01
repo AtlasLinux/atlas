@@ -89,7 +89,7 @@ static byte saveg_read8(void)
             fprintf(stderr, "saveg_read8: Unexpected end of file while "
                             "reading save game\n");
 
-            savegame_error = true;
+            savegame_error = _true;
         }
     }
 
@@ -104,7 +104,7 @@ static void saveg_write8(byte value)
         {
             fprintf(stderr, "saveg_write8: Error while writing save game\n");
 
-            savegame_error = true;
+            savegame_error = _true;
         }
     }
 }
@@ -1394,7 +1394,7 @@ boolean P_ReadSaveGameHeader(void)
     memset(vcheck, 0, sizeof(vcheck));
     M_snprintf(vcheck, sizeof(vcheck), "version %i", G_VanillaVersionCode());
     if (strcmp(read_vcheck, vcheck) != 0)
-	return false;				// bad version 
+	return _false;				// bad version 
 
     gameskill = saveg_read8();
     gameepisode = saveg_read8();
@@ -1409,11 +1409,11 @@ boolean P_ReadSaveGameHeader(void)
     c = saveg_read8();
     leveltime = (a<<16) + (b<<8) + c; 
 
-    return true;
+    return _true;
 }
 
 //
-// Read the end of file marker.  Returns true if read successfully.
+// Read the end of file marker.  Returns _true if read successfully.
 // 
 
 boolean P_ReadSaveGameEOF(void)

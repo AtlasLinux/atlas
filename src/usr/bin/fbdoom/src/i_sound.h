@@ -33,7 +33,7 @@ struct sfxinfo_struct
     // tag name, used for hexen.
     char *tagname;
     
-    // lump name.  If we are running with use_sfx_prefix=true, a
+    // lump name.  If we are running with use_sfx_prefix=_true, a
     // 'DS' (or 'DP' for PC speaker sounds) is prepended to this.
 
     char name[9];
@@ -110,7 +110,7 @@ typedef struct
     int num_sound_devices;
 
     // Initialise sound module
-    // Returns true if successfully initialised
+    // Returns _true if successfully initialised
 
     boolean (*Init)(boolean use_sfx_prefix);
 

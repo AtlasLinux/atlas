@@ -30,7 +30,7 @@
 
 #define TIMER_FREQ 1193181 /* hz */
 
-static boolean pcs_initialized = false;
+static boolean pcs_initialized = _false;
 
 static SDL_mutex *sound_lock;
 static boolean use_sfx_prefix;
@@ -125,14 +125,14 @@ static boolean CachePCSLump(sfxinfo_t *sfxinfo)
   
     if (current_sound_lump[0] != 0x00 || current_sound_lump[1] != 0x00)
     {
-        return false;
+        return _false;
     }
 
     headerlen = (current_sound_lump[3] << 8) | current_sound_lump[2];
 
     if (headerlen > lumplen - 4)
     {
-        return false;
+        return _false;
     }
 
     // Header checks out ok
@@ -141,7 +141,7 @@ static boolean CachePCSLump(sfxinfo_t *sfxinfo)
     current_sound_pos = current_sound_lump + 4;
     current_sound_lump_num = sfxinfo->lumpnum;
 
-    return true;
+    return _true;
 }
 
 // These Doom PC speaker sounds are not played - this can be seen in the 
@@ -164,11 +164,11 @@ static boolean IsDisabledSound(sfxinfo_t *sfxinfo)
     {
         if (!strcmp(sfxinfo->name, disabled_sounds[i]))
         {
-            return true;
+            return _true;
         }
     }
 
-    return false;
+    return _false;
 }
 
 static int I_PCS_StartSound(sfxinfo_t *sfxinfo,
@@ -260,12 +260,12 @@ static boolean I_PCS_SoundIsPlaying(int handle)
 {
     if (!pcs_initialized)
     {
-        return false;
+        return _false;
     }
 
     if (handle != current_sound_handle)
     {
-        return false;
+        return _false;
     }
 
     return current_sound_lump != NULL && current_sound_remaining > 0;

@@ -25,11 +25,11 @@
 #include "z_zone.h"
 
 // Parse the command line, merging WAD files that are sppecified.
-// Returns true if at least one file was added.
+// Returns _true if at least one file was added.
 
 boolean W_ParseCommandLine(void)
 {
-    boolean modifiedgame = false;
+    boolean modifiedgame = _false;
     int p;
 
 #ifdef FEATURE_WAD_MERGE
@@ -53,7 +53,7 @@ boolean W_ParseCommandLine(void)
         {
             char *filename;
 
-            modifiedgame = true;
+            modifiedgame = _true;
 
             filename = D_TryFindWADByName(myargv[p]);
 
@@ -81,7 +81,7 @@ boolean W_ParseCommandLine(void)
         {
             char *filename;
 
-            modifiedgame = true;
+            modifiedgame = _true;
 
             filename = D_TryFindWADByName(myargv[p]);
 
@@ -108,7 +108,7 @@ boolean W_ParseCommandLine(void)
         {
             char *filename;
 
-            modifiedgame = true;
+            modifiedgame = _true;
 
             filename = D_TryFindWADByName(myargv[p]);
 
@@ -133,7 +133,7 @@ boolean W_ParseCommandLine(void)
         {
             char *filename;
 
-            modifiedgame = true;
+            modifiedgame = _true;
             filename = D_TryFindWADByName(myargv[p]);
 
             printf(" merging sprites from %s\n", filename);
@@ -156,7 +156,7 @@ boolean W_ParseCommandLine(void)
         {
             char *filename;
 
-            modifiedgame = true;
+            modifiedgame = _true;
 
             filename = D_TryFindWADByName(myargv[p]);
 
@@ -179,7 +179,7 @@ boolean W_ParseCommandLine(void)
     {
 	// the parms after p are wadfile/lump names,
 	// until end of parms or another - preceded parm
-	modifiedgame = true;            // homebrew levels
+	modifiedgame = _true;            // homebrew levels
 	while (++p != myargc && myargv[p][0] != '-')
         {
             char *filename;

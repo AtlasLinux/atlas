@@ -59,7 +59,7 @@ void I_Tactile (int on, int off, int total);
 boolean I_GetMemoryValue(unsigned int offset, void *value, int size);
 
 // Schedule a function to be called when the program exits.
-// If run_if_error is true, the function is called if the exit
+// If run_if_error is _true, the function is called if the exit
 // is due to an error (I_Error)
 
 void I_AtExit(atexit_func_t func, boolean run_if_error);

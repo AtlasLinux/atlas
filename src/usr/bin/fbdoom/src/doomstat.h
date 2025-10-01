@@ -58,7 +58,7 @@ extern GameMission_t	gamemission;
 extern GameVersion_t    gameversion;
 extern char            *gamedescription;
 
-// If true, we're using one of the mangled BFG edition IWADs.
+// If _true, we're using one of the mangled BFG edition IWADs.
 extern boolean bfgedition;
 
 // Convenience macro.
@@ -101,7 +101,7 @@ extern  int             timelimit;
 // Nightmare mode flag, single player.
 extern  boolean         respawnmonsters;
 
-// Netgame? Only true if >1 player.
+// Netgame? Only _true if >1 player.
 extern  boolean	netgame;
 
 // 0=Cooperative; 1=Deathmatch; 2=Altdeath
@@ -249,7 +249,7 @@ extern  wbstartstruct_t		wminfo;
 extern  char *          savegamedir;
 extern	char		basedefault[1024];
 
-// if true, load all graphics at level load
+// if _true, load all graphics at level load
 extern  boolean         precache;
 
 

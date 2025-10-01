@@ -55,11 +55,11 @@ boolean D_ValidGameMode(GameMission_t mission, GameMode_t mode)
     {
         if (valid_modes[i].mode == mode && valid_modes[i].mission == mission)
         {
-            return true;
+            return _true;
         }
     }
 
-    return false;
+    return _false;
 }
 
 boolean D_ValidEpisodeMap(GameMission_t mission, GameMode_t mode,
@@ -95,7 +95,7 @@ boolean D_ValidEpisodeMap(GameMission_t mission, GameMode_t mode,
 
     // Unknown mode/mission combination
 
-    return false;
+    return _false;
 }
 
 // Get the number of valid episodes for the specified mission/mode.
@@ -149,11 +149,11 @@ boolean D_ValidGameVersion(GameMission_t mission, GameVersion_t version)
         if (valid_versions[i].mission == mission 
          && valid_versions[i].version == version)
         {
-            return true;
+            return _true;
         }
     }
 
-    return false;
+    return _false;
 }
 
 // Does this mission type use ExMy form, rather than MAPxy form?
@@ -165,7 +165,7 @@ boolean D_IsEpisodeMap(GameMission_t mission)
         case doom:
         case heretic:
         case pack_chex:
-            return true;
+            return _true;
 
         case none:
         case hexen:
@@ -175,7 +175,7 @@ boolean D_IsEpisodeMap(GameMission_t mission)
         case pack_plut:
         case strife:
         default:
-            return false;
+            return _false;
     }
 }
 

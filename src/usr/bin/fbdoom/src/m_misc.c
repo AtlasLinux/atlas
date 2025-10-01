@@ -72,7 +72,7 @@ boolean M_FileExists(char *filename)
     if (fstream != NULL)
     {
         fclose(fstream);
-        return true;
+        return _true;
     }
     else
     {
@@ -117,15 +117,15 @@ boolean M_WriteFile(char *name, void *source, int length)
     handle = fopen(name, "wb");
 
     if (handle == NULL)
-	return false;
+	return _false;
 
     count = fwrite(source, 1, length, handle);
     fclose(handle);
 	
     if (count < length)
-	return false;
+	return _false;
 		
-    return true;
+    return _true;
 }
 
 
@@ -368,7 +368,7 @@ char *M_StringReplace(const char *haystack, const char *needle,
 }
 
 // Safe string copy function that works like OpenBSD's strlcpy().
-// Returns true if the string was not truncated.
+// Returns _true if the string was not truncated.
 
 boolean M_StringCopy(char *dest, const char *src, size_t dest_size)
 {
@@ -381,7 +381,7 @@ boolean M_StringCopy(char *dest, const char *src, size_t dest_size)
     }
     else
     {
-        return false;
+        return _false;
     }
 
     len = strlen(dest);
@@ -389,7 +389,7 @@ boolean M_StringCopy(char *dest, const char *src, size_t dest_size)
 }
 
 // Safe string concat function that works like OpenBSD's strlcat().
-// Returns true if string not truncated.
+// Returns _true if string not truncated.
 
 boolean M_StringConcat(char *dest, const char *src, size_t dest_size)
 {
@@ -404,7 +404,7 @@ boolean M_StringConcat(char *dest, const char *src, size_t dest_size)
     return M_StringCopy(dest + offset, src, dest_size - offset);
 }
 
-// Returns true if 's' begins with the specified prefix.
+// Returns _true if 's' begins with the specified prefix.
 
 boolean M_StringStartsWith(const char *s, const char *prefix)
 {
@@ -412,7 +412,7 @@ boolean M_StringStartsWith(const char *s, const char *prefix)
         && strncmp(s, prefix, strlen(prefix)) == 0;
 }
 
-// Returns true if 's' ends with the specified suffix.
+// Returns _true if 's' ends with the specified suffix.
 
 boolean M_StringEndsWith(const char *s, const char *suffix)
 {

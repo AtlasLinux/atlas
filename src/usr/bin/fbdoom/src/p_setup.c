@@ -152,7 +152,7 @@ void P_LoadVertexes (int lump)
 //
 sector_t* GetSectorAtNullAddress(void)
 {
-    static boolean null_sector_is_initialized = false;
+    static boolean null_sector_is_initialized = _false;
     static sector_t null_sector;
 
     if (!null_sector_is_initialized)
@@ -160,7 +160,7 @@ sector_t* GetSectorAtNullAddress(void)
         memset(&null_sector, 0, sizeof(null_sector));
         I_GetMemoryValue(0, &null_sector.floorheight, 4);
         I_GetMemoryValue(4, &null_sector.ceilingheight, 4);
-        null_sector_is_initialized = true;
+        null_sector_is_initialized = _true;
     }
 
     return &null_sector;
@@ -347,7 +347,7 @@ void P_LoadThings (int lump)
     mt = (mapthing_t *)data;
     for (i=0 ; i<numthings ; i++, mt++)
     {
-	spawn = true;
+	spawn = _true;
 
 	// Do not spawn cool, new monsters if !commercial
 	if (gamemode != commercial)
@@ -364,11 +364,11 @@ void P_LoadThings (int lump)
 	      case 65:	// Former Human Commando
 	      case 66:	// Revenant
 	      case 84:	// Wolf SS
-		spawn = false;
+		spawn = _false;
 		break;
 	    }
 	}
-	if (spawn == false)
+	if (spawn == _false)
 	    break;
 
 	// Do spawn all other stuff. 
