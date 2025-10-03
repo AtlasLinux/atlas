@@ -13,6 +13,16 @@ KERNEL_TREE := kernel/linux
 KERNEL_VER 	:= 6.16.0-g37816488247d
 DEST_ROOT   := $(SRC_DIR)/usr/lib/modules/$(KERNEL_VER)
 
+QEMU_ARGS 	:= \
+		-device ich9-intel-hda \
+		-device hda-duplex \
+		-netdev user,id=net0 \
+		-device e1000,netdev=net0 \
+		-device virtio-vga \
+		-m 8096 \
+		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
+		-drive if=pflash,format=raw,file=x64/OVMF_VARS.4m.fd
+
 .PHONY: all img run clean install crun iso build crun-iso kernel modules
 
 all: img
@@ -116,25 +126,15 @@ img: install
 
 run: img
 	qemu-system-x86_64 \
+		$(QEMU_ARGS) \
 		-kernel kernel/bzImage \
 		-append "root=/dev/vda rw console=tty1" \
-		-netdev user,id=net0 \
-		-device e1000,netdev=net0 \
-		-device virtio-vga \
-		-m 8096 \
 		-drive file=$(IMAGE),if=virtio,format=raw \
-		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
-		-drive if=pflash,format=raw,file=x64/OVMF_VARS.4m.fd
 
 run-iso: iso
 	qemu-system-x86_64 \
 		-cdrom $(ISO) \
-		-m 8096 \
-		-netdev user,id=net0 \
-		-device e1000,netdev=net0 \
-		-device virtio-vga \
-		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
-		-drive if=pflash,format=raw,file=x64/OVMF_VARS.4m.fd
+		$(QEMU_ARGS)
 
 crun: clean run
 crun-iso: clean run-iso
