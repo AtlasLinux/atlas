@@ -23,7 +23,7 @@
 	path = src/usr/lib/liblog
 	url = https://github.com/AtlasLinux/liblog
 [submodule "kernel/linux"]
-	path = kernel/linux
+	path = linux
 	url = https://github.com/atlaslinux/linux
 [submodule "src/usr/bin/fish_editor"]
 	path = src/usr/bin/fish_editor
