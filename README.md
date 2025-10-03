@@ -18,7 +18,7 @@ Once the kernel is built, the rest of the targets become available.
 
 `all`: the main target. Builds everything under `src/` and installs into `atlas.img` for quick testing.
 
-`modules`: installs the specified kernel modules into `build/`. Requires a space-seperated list of modules passed into `$(MODULES)` (i.e. `make modules MODULES=e1000` for the e1000 intel ethernet driver)
+`modules`: installs the specified kernel modules into `build/`. Pass in a space-seperated list of `MODULES` to install. If not, installs a default set. 
 
 `build`: builds everything under `src/` without installing
 

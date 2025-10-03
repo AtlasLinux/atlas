@@ -1,19 +1,22 @@
-SRC_DIR     := src
-BUILD_DIR   := build
-ISO_DIR		:= iso
+SRC_DIR     := 	src
+BUILD_DIR   := 	build
+ISO_DIR		:= 	iso
 
-IMAGE       := atlas.img
-ISO 		:= atlaslinux-x86_64.iso
-IMAGE_SIZE  := 64   # size in MB
-MOUNT_POINT := mnt
+IMAGE       := 	atlas.img
+ISO 		:= 	atlaslinux-x86_64.iso
+IMAGE_SIZE  := 	64   # size in MB
+MOUNT_POINT := 	mnt
 
-SUBPROJECTS := $(shell find $(SRC_DIR) -type f -name Makefile | sort -r)
+SUBPROJECTS := 	$(shell find $(SRC_DIR) -type f -name Makefile | sort -r)
 
-KERNEL_TREE := kernel/linux
-KERNEL_VER 	:= 6.16.0-g37816488247d
-DEST_ROOT   := $(SRC_DIR)/usr/lib/modules/$(KERNEL_VER)
+KERNEL_TREE := 	kernel/linux
+KERNEL_IMAGE:= 	$(KERNEL_TREE)/arch/x86/boot/bzImage
+KERNEL_VER  := 	$(shell strings $(KERNEL_IMAGE) | grep "atlas" -m 1 | sed 's/ .*//')
+MODULES     ?= 	e1000 \
+				virtio_dma_buf virtio-gpu
+DEST_ROOT   := 	$(SRC_DIR)/usr/lib/modules/$(KERNEL_VER)
 
-QEMU_ARGS 	:= \
+QEMU_ARGS 	?= \
 		-device ich9-intel-hda \
 		-device hda-duplex \
 		-netdev user,id=net0 \
@@ -95,15 +98,12 @@ install: build
 			fi; \
 	done
 
-test:
-	sed -i 's|kernel/arch/x86|usr/lib/modules/$(KERNEL_VER)|g' kernel/linux/modules.dep
-
 iso: install
 	@mkdir -p $(ISO_DIR)/boot/grub
 	@sudo rm -f $(BUILD_DIR)/init
 	@sudo ln $(BUILD_DIR)/sbin/init $(BUILD_DIR)/init
 	@cd $(BUILD_DIR) && find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../$(ISO_DIR)/boot/initramfs.cpio.gz
-	@sudo cp kernel/bzImage $(ISO_DIR)/boot
+	@sudo cp $(KERNEL_IMAGE) $(ISO_DIR)/boot
 	@cp grub.cfg $(ISO_DIR)/boot/grub
 	@grub-mkrescue -o $(ISO) $(ISO_DIR)
 
@@ -127,7 +127,7 @@ img: install
 run: img
 	qemu-system-x86_64 \
 		$(QEMU_ARGS) \
-		-kernel kernel/bzImage \
+		-kernel $(KERNEL_IMAGE) \
 		-append "root=/dev/vda rw console=tty1" \
 		-drive file=$(IMAGE),if=virtio,format=raw \
 
