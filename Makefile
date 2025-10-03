@@ -10,7 +10,7 @@ MOUNT_POINT := 	mnt
 SUBPROJECTS := 	$(shell find $(SRC_DIR) -type f -name Makefile | sort -r)
 
 KERNEL_TREE := 	linux
-KERNEL_IMAGE:= 	$(KERNEL_TREE)/arch/x86/boot/bzImage
+KERNEL_IMAGE:= 	$(KERNEL_TREE)/bzImage
 KERNEL_VER  := 	$(shell strings $(KERNEL_IMAGE) | grep "atlas" -m 1 | sed 's/ .*//')
 MODULES     ?= 	e1000 \
 				virtio_dma_buf virtio-gpu
@@ -52,9 +52,9 @@ modules:
 kernel:
 	@cd linux; \
 	export INSTALL_MOD_PATH=$(abspath src/usr); \
-	cp kernel.conf .config; \
+	cp ../kernel.conf .config; \
 	$(MAKE) -j$(shell nproc) olddefconfig; \
-	$(MAKE) -j$(shell nproc) all; \
+	$(MAKE) -j$(shell nproc) all;
 	@cp $(KERNEL_IMAGE) $(KERNEL_TREE)
 
 build: $(SUBPROJECTS)
