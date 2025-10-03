@@ -9,7 +9,7 @@ MOUNT_POINT := 	mnt
 
 SUBPROJECTS := 	$(shell find $(SRC_DIR) -type f -name Makefile | sort -r)
 
-KERNEL_TREE := 	kernel/linux
+KERNEL_TREE := 	linux
 KERNEL_IMAGE:= 	$(KERNEL_TREE)/arch/x86/boot/bzImage
 KERNEL_VER  := 	$(shell strings $(KERNEL_IMAGE) | grep "atlas" -m 1 | sed 's/ .*//')
 MODULES     ?= 	e1000 \
@@ -50,9 +50,9 @@ modules:
 	@sudo depmod -b $(SRC_DIR)/usr $(KERNEL_VER)
 
 kernel:
-	@cd kernel/linux; \
+	@cd linux; \
 	export INSTALL_MOD_PATH=$(abspath src/usr); \
-	cp ../../linux.conf .config; \
+	cp kernel.conf .config; \
 	$(MAKE) -j$(shell nproc) olddefconfig; \
 	$(MAKE) -j$(shell nproc) all; \
 
