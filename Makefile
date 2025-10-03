@@ -55,6 +55,7 @@ kernel:
 	cp kernel.conf .config; \
 	$(MAKE) -j$(shell nproc) olddefconfig; \
 	$(MAKE) -j$(shell nproc) all; \
+	@cp $(KERNEL_IMAGE) $(KERNEL_TREE)
 
 build: $(SUBPROJECTS)
 	@set -e; \
