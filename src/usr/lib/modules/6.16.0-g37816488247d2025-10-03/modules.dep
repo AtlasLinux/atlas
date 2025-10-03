@@ -1,0 +1,5 @@
+sound/hda/common/snd-hda-codec.ko:
+drivers/net/ethernet/intel/e1000/e1000.ko:
+sound/hda/controllers/snd-hda-intel.ko: sound/hda/common/snd-hda-codec.ko
+drivers/virtio/virtio_dma_buf.ko:
+drivers/gpu/drm/virtio/virtio-gpu.ko: drivers/virtio/virtio_dma_buf.ko
