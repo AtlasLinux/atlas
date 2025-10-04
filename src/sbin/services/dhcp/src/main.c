@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/select.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +23,50 @@
 
 #define CONTROL_SOCKET_PATH "/run/dhcpd.sock"
 
+/* DHCP option codes used */
+#define DHCP_OPTION_MSGTYPE    53
+#define DHCP_OPTION_SERVERID   54
+#define DHCP_OPTION_REQUESTED  50
+#define DHCP_OPTION_NETMASK    1
+#define DHCP_OPTION_ROUTER     3
+#define DHCP_OPTION_DNS        6
+#define DHCP_OPTION_END        255
+#define DHCP_OPTION_PARAM_REQ  55
+#define DHCP_OPTION_LEASE_TIME 51
+
+/* DHCP message types */
+#define DHCPDISCOVER 1
+#define DHCPOFFER    2
+#define DHCPREQUEST  3
+#define DHCPACK      5
+
+/* A minimal BOOTP/DHCP message (packed to avoid padding) */
+struct dhcp_msg {
+    uint8_t op, htype, hlen, hops;
+    uint32_t xid;
+    uint16_t secs, flags;
+    uint32_t ciaddr, yiaddr, siaddr, giaddr;
+    uint8_t chaddr[16];
+    uint8_t sname[64];
+    uint8_t file[128];
+    uint8_t options[312];
+} __attribute__((packed));
+
+/* lease metadata stored for queries & renew logic */
+struct lease_info {
+    char ifname[IFNAMSIZ];
+    char ip[INET_ADDRSTRLEN];
+    char netmask[INET_ADDRSTRLEN];
+    char router[INET_ADDRSTRLEN];
+    uint32_t *dns; size_t dns_cnt;
+    time_t lease_start;
+    uint32_t lease_time; /* seconds (option 51) */
+    uint32_t server_id;  /* in network order */
+    int status; /* 0 = ok, non-zero = failed/no-lease */
+} lease = {0};
+
 static int setup_control_socket(void) {
+    /* ensure restrictive socket permissions */
     int fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (fd < 0) {
         log_error("control socket(): %s\n\r", strerror(errno));
@@ -41,6 +85,12 @@ static int setup_control_socket(void) {
         close(fd);
         return -1;
     }
+
+    /* restrict permissions to root only */
+    if (chmod(CONTROL_SOCKET_PATH, S_IRUSR|S_IWUSR) < 0) {
+        log_warn("chmod control socket: %s\n\r", strerror(errno));
+    }
+
     if (listen(fd, 5) < 0) {
         log_perror("listen");
         close(fd);
@@ -132,10 +182,26 @@ static int set_ip_on_iface(const char *ifname, const char *ip) {
     return 0;
 }
 
+/* bring interface down (used for release) */
+static int bring_iface_down(const char *ifname) {
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (fd < 0) return -1;
+    struct ifreq ifr;
+    memset(&ifr, 0, sizeof(ifr));
+    strncpy(ifr.ifr_name, ifname, IFNAMSIZ-1);
+
+    if (ioctl(fd, SIOCGIFFLAGS, &ifr) < 0) { close(fd); return -1; }
+    ifr.ifr_flags &= ~(IFF_UP | IFF_RUNNING);
+    if (ioctl(fd, SIOCSIFFLAGS, &ifr) < 0) { close(fd); return -1; }
+
+    close(fd);
+    return 0;
+}
+
 /* add default route */
 static void add_default_route(const char *gw, const char *dev) {
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (fd < 0) exit(1);
+    if (fd < 0) return;
 
     struct rtentry route;
     memset(&route, 0, sizeof(route));
@@ -156,36 +222,42 @@ static void add_default_route(const char *gw, const char *dev) {
     route.rt_flags = RTF_UP | RTF_GATEWAY;
     route.rt_dev = (char *)dev;
 
-    ioctl(fd, SIOCADDRT, &route);
+    ioctl(fd, SIOCADDRT, &route); /* ignore check, best-effort */
     close(fd);
 }
 
-/* DHCP */
-#define DHCPDISCOVER 1
-#define DHCPOFFER    2
-#define DHCPREQUEST  3
-#define DHCPACK      5
+/* best-effort delete default route for this dev (not guaranteed on all kernels) */
+static void del_default_route(const char *dev) {
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (fd < 0) return;
 
-#define DHCP_OPTION_MSGTYPE    53
-#define DHCP_OPTION_SERVERID   54
-#define DHCP_OPTION_REQUESTED  50
-#define DHCP_OPTION_NETMASK    1
-#define DHCP_OPTION_ROUTER     3
-#define DHCP_OPTION_DNS        6
-#define DHCP_OPTION_END        255
-#define DHCP_OPTION_PARAM_REQ  55
+    struct rtentry route;
+    memset(&route, 0, sizeof(route));
+    struct sockaddr_in *addr;
 
-/* A minimal BOOTP/DHCP message (packed to avoid padding) */
-struct dhcp_msg {
-    uint8_t op, htype, hlen, hops;
-    uint32_t xid;
-    uint16_t secs, flags;
-    uint32_t ciaddr, yiaddr, siaddr, giaddr;
-    uint8_t chaddr[16];
-    uint8_t sname[64];
-    uint8_t file[128];
-    uint8_t options[312];
-} __attribute__((packed));
+    addr = (struct sockaddr_in *)&route.rt_dst;
+    addr->sin_family = AF_INET;
+    addr->sin_addr.s_addr = INADDR_ANY;
+
+    addr = (struct sockaddr_in *)&route.rt_gateway;
+    addr->sin_family = AF_INET;
+    addr->sin_addr.s_addr = INADDR_ANY;
+
+    addr = (struct sockaddr_in *)&route.rt_genmask;
+    addr->sin_family = AF_INET;
+    addr->sin_addr.s_addr = INADDR_ANY;
+
+    route.rt_flags = RTF_UP | RTF_GATEWAY;
+    route.rt_dev = (char *)dev;
+
+    /* try SIOCDELRT if available; fallback to SIOCADDRT with negative? try ioctl with SIOCDELRT */
+#ifdef SIOCDELRT
+    ioctl(fd, SIOCDELRT, &route);
+#else
+    ioctl(fd, SIOCADDRT, &route); /* no-op: best-effort */
+#endif
+    close(fd);
+}
 
 /* get MAC address of interface */
 static int if_get_hwaddr(const char *ifname, uint8_t *mac_out) {
@@ -245,8 +317,8 @@ static void build_discover(struct dhcp_msg *m, uint32_t xid, const uint8_t *mac)
     /* dhcp message type */
     p = opt_add(p, DHCP_OPTION_MSGTYPE, 1, (uint8_t[]){DHCPDISCOVER});
 
-    /* parameter request list (request netmask, router, dns) */
-    uint8_t prl[] = { DHCP_OPTION_NETMASK, DHCP_OPTION_ROUTER, DHCP_OPTION_DNS };
+    /* parameter request list (request netmask, router, dns, lease-time) */
+    uint8_t prl[] = { DHCP_OPTION_NETMASK, DHCP_OPTION_ROUTER, DHCP_OPTION_DNS, DHCP_OPTION_LEASE_TIME };
     p = opt_add(p, DHCP_OPTION_PARAM_REQ, sizeof(prl), prl);
 
     /* end */
@@ -271,22 +343,24 @@ static void build_request(struct dhcp_msg *m, uint32_t xid, const uint8_t *mac,
     p = opt_add(p, DHCP_OPTION_MSGTYPE, 1, (uint8_t[]){DHCPREQUEST});
     p = opt_add(p, DHCP_OPTION_REQUESTED, 4, &requested_ip); /* network order expected */
     p = opt_add(p, DHCP_OPTION_SERVERID, 4, &server_id);
-    uint8_t prl[] = { DHCP_OPTION_NETMASK, DHCP_OPTION_ROUTER, DHCP_OPTION_DNS };
+    uint8_t prl[] = { DHCP_OPTION_NETMASK, DHCP_OPTION_ROUTER, DHCP_OPTION_DNS, DHCP_OPTION_LEASE_TIME };
     p = opt_add(p, DHCP_OPTION_PARAM_REQ, sizeof(prl), prl);
     *p++ = DHCP_OPTION_END;
 }
 
-/* parse DHCP options and extract useful values (server_id, routers, dns) */
+/* parse DHCP options and extract useful values (server_id, routers, dns, lease_time) */
 static void parse_options(const uint8_t *opts, size_t optslen,
                           uint32_t *out_server_id,
                           uint32_t *out_netmask,
                           uint32_t *out_router,
-                          uint32_t **out_dns, size_t *out_dns_cnt) {
+                          uint32_t **out_dns, size_t *out_dns_cnt,
+                          uint32_t *out_lease_time) {
     *out_server_id = 0;
     *out_netmask = 0;
     *out_router = 0;
     *out_dns = NULL;
     *out_dns_cnt = 0;
+    *out_lease_time = 0;
 
     /* options should start with cookie at opts[0..3] */
     if (optslen < 4) return;
@@ -335,6 +409,12 @@ static void parse_options(const uint8_t *opts, size_t optslen,
                 }
             }
             break;
+        case DHCP_OPTION_LEASE_TIME:
+            if (len == 4) {
+                uint32_t v; memcpy(&v, &opts[i], 4);
+                *out_lease_time = ntohl(v);
+            }
+            break;
         default:
             /* ignore */
             break;
@@ -366,7 +446,12 @@ static int dhcp_msgtype_from_options(const uint8_t *opts, size_t optslen) {
 
 /* write /etc/resolv.conf with DNS servers (array in network order) */
 static void write_resolv(uint32_t *dns_arr, size_t dns_cnt) {
-    if (dns_arr == NULL || dns_cnt == 0) return;
+    if (dns_arr == NULL || dns_cnt == 0) {
+        /* truncate file */
+        int fd = open("/etc/resolv.conf", O_WRONLY|O_CREAT|O_TRUNC, 0644);
+        if (fd >= 0) close(fd);
+        return;
+    }
     int fd = open("/etc/resolv.conf", O_WRONLY|O_CREAT|O_TRUNC, 0644);
     if (fd < 0) { log_warn("could not open /etc/resolv.conf: %s\n\r", strerror(errno)); return; }
 
@@ -376,24 +461,48 @@ static void write_resolv(uint32_t *dns_arr, size_t dns_cnt) {
         a.s_addr = dns_arr[i];
         const char *s = inet_ntoa(a);
         if (!s) continue;
-        int n = snprintf(line, sizeof(line), "nameserver %s\n\r", s);
+        int n = snprintf(line, sizeof(line), "nameserver %s\n", s);
         if (n > 0) write(fd, line, (size_t)n);
     }
     close(fd);
 }
 
-/* perform DHCP DISCOVER -> OFFER -> REQUEST -> ACK sequence on ifname */
-static int do_dhcp(const char *ifname) {
+/* release: bring iface down, clear default route, truncate resolv.conf, reset lease metadata */
+static void release_iface(struct lease_info *l) {
+    if (l == NULL) return;
+    if (l->ifname[0]) {
+        bring_iface_down(l->ifname);
+        del_default_route(l->ifname);
+    }
+    write_resolv(NULL, 0);
+
+    /* free dns */
+    if (l->dns) { free(l->dns); l->dns = NULL; l->dns_cnt = 0; }
+
+    /* clear strings */
+    l->ip[0] = '\0';
+    l->router[0] = '\0';
+    l->netmask[0] = '\0';
+    l->server_id = 0;
+    l->lease_start = 0;
+    l->lease_time = 0;
+    l->status = 1;
+}
+
+/* perform DHCP DISCOVER -> OFFER -> REQUEST -> ACK sequence on ifname
+   this fills the global lease struct on success */
+static int do_dhcp(struct lease_info *l) {
+    if (!l) return -1;
     uint8_t mac[6];
-    if (if_get_hwaddr(ifname, mac) < 0) {
-        log_error("failed to get MAC for %s: %s\n\r", ifname, strerror(errno));
+    if (if_get_hwaddr(l->ifname, mac) < 0) {
+        log_error("failed to get MAC for %s: %s\n\r", l->ifname, strerror(errno));
         return -1;
     }
 
     /* bring interface up (link) so we can send */
-    if (bring_iface_up(ifname) < 0) {
-        log_warn("could not bring %s up: %s\n\r", ifname, strerror(errno));
-        /* continue anyway, some drivers bring it up later */
+    if (bring_iface_up(l->ifname) < 0) {
+        log_warn("could not bring %s up: %s\n\r", l->ifname, strerror(errno));
+        /* continue anyway */
     }
 
     /* create socket bound to port 68 */
@@ -420,9 +529,9 @@ static int do_dhcp(const char *ifname) {
     }
 
     /* bind socket to interface so replies come on that interface */
-    if (setsockopt(s, SOL_SOCKET, SO_BINDTODEVICE, ifname, strlen(ifname)) < 0) {
+    if (setsockopt(s, SOL_SOCKET, SO_BINDTODEVICE, l->ifname, strlen(l->ifname)) < 0) {
         /* not fatal on all kernels, just warn */
-        log_warn("SO_BINDTODEVICE failed for %s: %s\n\r", ifname, strerror(errno));
+        log_warn("SO_BINDTODEVICE failed for %s: %s\n\r", l->ifname, strerror(errno));
     }
 
     /* destination (broadcast) */
@@ -447,6 +556,10 @@ static int do_dhcp(const char *ifname) {
     /* send discover and wait for offer(s) */
     uint32_t offered_ip = 0;
     uint32_t server_id = 0;
+    uint32_t offered_netmask = 0, offered_router = 0;
+    uint32_t *offered_dns = NULL; size_t offered_dns_cnt = 0;
+    uint32_t offered_lease_time = 0;
+
     while (tries < max_tries && offered_ip == 0) {
         tries++;
         sent = sendto(s, &msg, sizeof(msg), 0, (struct sockaddr*)&dst, sizeof(dst));
@@ -487,28 +600,22 @@ static int do_dhcp(const char *ifname) {
             }
             offered_ip = reply.yiaddr; /* network order */
             /* parse options to get server id */
-            uint32_t netmask=0, router=0;
-            uint32_t *dns_arr = NULL; size_t dns_cnt = 0;
-            parse_options(reply.options, sizeof(reply.options), &server_id, &netmask, &router, &dns_arr, &dns_cnt);
+            parse_options(reply.options, sizeof(reply.options),
+                          &server_id, &offered_netmask, &offered_router, &offered_dns, &offered_dns_cnt,
+                          &offered_lease_time);
             if (server_id == 0) {
                 log_warn("OFFER missing server identifier; ignoring\n\r");
                 offered_ip = 0; /* ignore */
-                free(dns_arr);
+                if (offered_dns) free(offered_dns);
                 continue;
             }
             /* we have an offer */
-            char ipstr[INET_ADDRSTRLEN];
             struct in_addr ina; ina.s_addr = offered_ip;
+            char ipstr[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, &ina, ipstr, sizeof(ipstr));
-            log_info("DHCPOFFER from server %s offered %s\n\r", inet_ntoa(*(struct in_addr *)&server_id), ipstr);
 
-            /* keep dns_arr/dns_cnt/router/netmask for later */
-            if (dns_arr) {
-                /* store them in heap-local variables by reusing parse vars below after request */
-                /* we'll free/handle them after ACK */
-            }
-            /* break to send REQUEST */
-            /* For simplicity we will reuse server_id variable and offered_ip */
+            struct in_addr sid; sid.s_addr = server_id;
+            log_info("DHCPOFFER from server %s offered %s\n\r", inet_ntoa(sid), ipstr);
             break;
         }
     }
@@ -516,6 +623,8 @@ static int do_dhcp(const char *ifname) {
     if (offered_ip == 0) {
         log_error("no DHCPOFFER received\n\r");
         close(s);
+        /* free possible partial data */
+        if (offered_dns) free(offered_dns);
         return -1;
     }
 
@@ -526,8 +635,8 @@ static int do_dhcp(const char *ifname) {
     /* send REQUEST and wait for ACK (with retries) */
     int got_ack = 0;
     tries = 0;
-    uint32_t netmask = 0, router = 0;
-    uint32_t *dns_arr = NULL; size_t dns_cnt = 0;
+    uint32_t ack_netmask = 0, ack_router = 0, ack_lease_time = 0;
+    uint32_t *ack_dns = NULL; size_t ack_dns_cnt = 0;
 
     while (tries < max_tries && !got_ack) {
         tries++;
@@ -554,46 +663,77 @@ static int do_dhcp(const char *ifname) {
             got_ack = 1;
             /* parse out options */
             uint32_t server_id2 = 0;
-            parse_options(reply.options, sizeof(reply.options), &server_id2, &netmask, &router, &dns_arr, &dns_cnt);
+            parse_options(reply.options, sizeof(reply.options),
+                          &server_id2, &ack_netmask, &ack_router, &ack_dns, &ack_dns_cnt,
+                          &ack_lease_time);
             if (reply.yiaddr == 0) {
                 log_warn("ACK without yiaddr??\n\r");
                 got_ack = 0;
+                if (ack_dns) free(ack_dns);
                 continue;
             }
-            char ipstr[INET_ADDRSTRLEN], gwstr[INET_ADDRSTRLEN];
             struct in_addr ina; ina.s_addr = reply.yiaddr;
+            char ipstr[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, &ina, ipstr, sizeof(ipstr));
             log_info("DHCPACK: leased %s\n\r", ipstr);
-            if (router) {
-                struct in_addr r; r.s_addr = router;
-                inet_ntop(AF_INET, &r, gwstr, sizeof(gwstr));
-                log_info("DHCPACK: router %s\n\r", gwstr);
+            if (ack_router) {
+                struct in_addr r; r.s_addr = ack_router;
+                char gwbuf[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &r, gwbuf, sizeof(gwbuf));
+                log_info("DHCPACK: router %s\n\r", gwbuf);
             } else {
                 log_info("DHCPACK: no router option\n\r");
             }
 
             /* now apply IP and route */
-            /* convert yiaddr to string (note reply.yiaddr is in network order) */
+            /* set ip on iface */
             char ipbuf[INET_ADDRSTRLEN];
-            inet_ntop(AF_INET, &reply.yiaddr, ipbuf, sizeof(ipbuf));
-            if (set_ip_on_iface(ifname, ipbuf) == 0) {
-                log_info("set_ip_on_iface %s -> %s\n\r", ifname, ipbuf);
+            struct in_addr in_for_ntop;
+            in_for_ntop.s_addr = reply.yiaddr;
+            inet_ntop(AF_INET, &in_for_ntop, ipbuf, sizeof(ipbuf));
+            if (set_ip_on_iface(l->ifname, ipbuf) == 0) {
+                log_info("set_ip_on_iface %s -> %s\n\r", l->ifname, ipbuf);
             } else {
-                log_error("set_ip_on_iface failed for %s -> %s\n\r", ifname, ipbuf);
+                log_error("set_ip_on_iface failed for %s -> %s\n\r", l->ifname, ipbuf);
             }
 
-            if (router) {
-                struct in_addr r; r.s_addr = router;
+            if (ack_router) {
+                struct in_addr r; r.s_addr = ack_router;
                 char gwbuf[INET_ADDRSTRLEN];
                 inet_ntop(AF_INET, &r, gwbuf, sizeof(gwbuf));
-                add_default_route(gwbuf, ifname);
+                add_default_route(gwbuf, l->ifname);
             }
 
-            if (dns_arr && dns_cnt) {
-                write_resolv(dns_arr, dns_cnt);
+            /* update lease struct: free previous DNS if any, assign ack_dns */
+            if (l->dns) { free(l->dns); l->dns = NULL; l->dns_cnt = 0; }
+
+            if (ack_dns && ack_dns_cnt) {
+                l->dns = ack_dns;
+                l->dns_cnt = ack_dns_cnt;
+                write_resolv(l->dns, l->dns_cnt);
+            } else {
+                if (ack_dns) free(ack_dns);
+                l->dns = NULL; l->dns_cnt = 0;
+                write_resolv(NULL, 0);
             }
 
-            free(dns_arr);
+            /* store ip/router/netmask/lease_time/server_id */
+            strncpy(l->ip, ipbuf, sizeof(l->ip)-1);
+            if (ack_router) {
+                struct in_addr r; r.s_addr = ack_router;
+                inet_ntop(AF_INET, &r, l->router, sizeof(l->router));
+            } else l->router[0] = '\0';
+
+            if (ack_netmask) {
+                struct in_addr m; m.s_addr = ack_netmask;
+                inet_ntop(AF_INET, &m, l->netmask, sizeof(l->netmask));
+            } else l->netmask[0] = '\0';
+
+            l->server_id = server_id2 ? server_id2 : server_id;
+            l->lease_start = time(NULL);
+            l->lease_time = ack_lease_time ? ack_lease_time : offered_lease_time;
+            l->status = 0;
+
             break;
         } else {
             log_debug("received DHCP message type %d while awaiting ACK\n\r", mtype);
@@ -611,31 +751,45 @@ static int do_dhcp(const char *ifname) {
     return 0;
 }
 
+/* trim newline and spaces */
+static void strtrim(char *s) {
+    if (!s) return;
+    size_t i = strlen(s);
+    while (i > 0 && (s[i-1]=='\n' || s[i-1]=='\r' || s[i-1]==' ' || s[i-1]=='\t')) s[--i] = '\0';
+    i = 0;
+    while (s[i] && (s[i]==' ' || s[i]=='\t')) i++;
+    if (i) memmove(s, s+i, strlen(s+i)+1);
+}
+
 int main(void) {
     log_init("/log/services/dhcp.log", 0);
     log_info("dhcp service starting...\n\r");
 
     configure_lo();
 
-    char ifname[IFNAMSIZ] = {0};
+    /* choose interface */
+    char ifname_buf[IFNAMSIZ] = {0};
     int waited = 0, max_wait = 10;
     while (waited < max_wait) {
-        if (choose_net_iface(ifname, sizeof(ifname)) == 0) {
-            log_info("chosen interface %s\n\r", ifname);
+        if (choose_net_iface(ifname_buf, sizeof(ifname_buf)) == 0) {
+            log_info("chosen interface %s\n\r", ifname_buf);
             break;
         }
         sleep(1);
         waited++;
     }
 
-    if (ifname[0] == '\0') {
+    if (ifname_buf[0] == '\0') {
         log_error("no network interface found within %d seconds\n\r", max_wait);
         return 1;
     }
 
-    int rc = do_dhcp(ifname);
-    if (rc == 0) log_info("dhcp succeeded on %s\n\r", ifname);
-    else log_error("dhcp failed on %s\n\r", ifname);
+    strncpy(lease.ifname, ifname_buf, sizeof(lease.ifname)-1);
+    lease.status = 1; /* not yet leased */
+
+    int rc = do_dhcp(&lease);
+    if (rc == 0) log_info("dhcp succeeded on %s\n\r", lease.ifname);
+    else log_error("dhcp failed on %s\n\r", lease.ifname);
 
     /* start control socket loop */
     int ctl_fd = setup_control_socket();
@@ -643,27 +797,109 @@ int main(void) {
 
     log_info("control socket listening at %s\n\r", CONTROL_SOCKET_PATH);
 
+    /* main loop: poll on control socket with timeout based on lease T1 (half of lease_time) */
     for (;;) {
-        int cfd = accept(ctl_fd, NULL, NULL);
-        if (cfd < 0) {
-            log_warn("accept: %s\n\r", strerror(errno));
+        struct pollfd pfd;
+        pfd.fd = ctl_fd;
+        pfd.events = POLLIN;
+
+        /* compute poll timeout from lease renew time (T1 = lease_time/2) */
+        int timeout_ms = 1000; /* default poll every 1s */
+        if (lease.status == 0 && lease.lease_time > 0 && lease.lease_start > 0) {
+            time_t now = time(NULL);
+            time_t t1 = lease.lease_start + (lease.lease_time / 2);
+            if (t1 <= now) {
+                /* need to renew now */
+                timeout_ms = 0;
+            } else {
+                time_t diff = t1 - now;
+                if (diff > 3600) timeout_ms = 3600 * 1000; /* clamp */
+                else timeout_ms = (int)(diff * 1000);
+            }
+        }
+
+        int rv = poll(&pfd, 1, timeout_ms);
+        if (rv < 0) {
+            log_warn("poll error: %s\n\r", strerror(errno));
+            continue;
+        } else if (rv == 0) {
+            /* timeout — check whether to auto-renew */
+            if (lease.status == 0 && lease.lease_time > 0 && lease.lease_start > 0) {
+                time_t now = time(NULL);
+                time_t t1 = lease.lease_start + (lease.lease_time / 2);
+                if (now >= t1) {
+                    log_info("lease T1 reached: auto-renewing\n\r");
+                    int r = do_dhcp(&lease);
+                    if (r == 0) log_info("auto-renew succeeded\n\r");
+                    else log_warn("auto-renew failed\n\r");
+                }
+            }
             continue;
         }
 
-        char cmd[128];
-        ssize_t n = read(cfd, cmd, sizeof(cmd)-1);
-        if (n <= 0) { close(cfd); continue; }
-        cmd[n] = 0;
+        if (pfd.revents & POLLIN) {
+            int cfd = accept(ctl_fd, NULL, NULL);
+            if (cfd < 0) {
+                log_warn("accept: %s\n\r", strerror(errno));
+                continue;
+            }
 
-        /* very basic command handler */
-        if (strncmp(cmd, "status", 6) == 0) {
-            dprintf(cfd, "dhcp %s\n", rc==0 ? "ok" : "failed");
-        } else if (strncmp(cmd, "iface", 5) == 0) {
-            dprintf(cfd, "iface %s\n", ifname);
-        } else {
-            dprintf(cfd, "unknown\n");
+            char cmd[256];
+            ssize_t n = read(cfd, cmd, sizeof(cmd)-1);
+            if (n <= 0) { close(cfd); continue; }
+            cmd[n] = 0;
+            strtrim(cmd);
+
+            if (strncmp(cmd, "status", 6) == 0) {
+                time_t now = time(NULL);
+                int remaining = -1;
+                if (lease.status == 0 && lease.lease_time > 0 && lease.lease_start > 0) {
+                    remaining = (int)(lease.lease_time - (now - lease.lease_start));
+                    if (remaining < 0) remaining = 0;
+                }
+                dprintf(cfd, "status %s lease_remaining=%d lease_time=%u\n",
+                        lease.status==0 ? "ok" : "failed",
+                        remaining,
+                        lease.lease_time);
+            } else if (strncmp(cmd, "iface", 5) == 0) {
+                dprintf(cfd, "iface %s\n", lease.ifname);
+            } else if (strncmp(cmd, "ip", 2) == 0) {
+                dprintf(cfd, "ip %s\n", lease.ip[0] ? lease.ip : "none");
+            } else if (strncmp(cmd, "router", 6) == 0) {
+                dprintf(cfd, "router %s\n", lease.router[0] ? lease.router : "none");
+            } else if (strncmp(cmd, "netmask", 7) == 0) {
+                dprintf(cfd, "netmask %s\n", lease.netmask[0] ? lease.netmask : "none");
+            } else if (strncmp(cmd, "dns", 3) == 0) {
+                if (lease.dns_cnt == 0) {
+                    dprintf(cfd, "dns none\n");
+                } else {
+                    for (size_t i = 0; i < lease.dns_cnt; ++i) {
+                        struct in_addr a; a.s_addr = lease.dns[i];
+                        char buf[INET_ADDRSTRLEN];
+                        inet_ntop(AF_INET, &a, buf, sizeof(buf));
+                        dprintf(cfd, "dns %s\n", buf);
+                    }
+                }
+            } else if (strncmp(cmd, "renew", 5) == 0) {
+                dprintf(cfd, "renewing\n");
+                int r = do_dhcp(&lease);
+                dprintf(cfd, "renew %s\n", r==0 ? "ok" : "failed");
+            } else if (strncmp(cmd, "release", 7) == 0) {
+                release_iface(&lease);
+                dprintf(cfd, "released\n");
+            } else if (strncmp(cmd, "lease", 5) == 0) {
+                if (lease.lease_start == 0) {
+                    dprintf(cfd, "lease none\n");
+                } else {
+                    dprintf(cfd, "lease start=%ld time=%u\n", (long)lease.lease_start, lease.lease_time);
+                }
+            } else if (strncmp(cmd, "help", 4) == 0) {
+                dprintf(cfd, "commands: status iface ip router netmask dns lease renew release help\n");
+            } else {
+                dprintf(cfd, "unknown\n");
+            }
+            close(cfd);
         }
-        close(cfd);
     }
 
     return 0;
