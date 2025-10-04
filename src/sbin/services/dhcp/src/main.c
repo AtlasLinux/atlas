@@ -762,7 +762,11 @@ static void strtrim(char *s) {
 }
 
 int main(void) {
-    log_init("/log/services/dhcp.log", 0);
+    logger = logger_create(LOG_INFO);
+    LogSink* console_sink = console_sink_create();
+    logger_add_sink(logger, console_sink);
+    LogSink* file_sink = file_sink_create("/log/services/init.log");
+    logger_add_sink(logger, file_sink);
     log_info("dhcp service starting...\n\r");
 
     configure_lo();
@@ -902,5 +906,6 @@ int main(void) {
         }
     }
 
+    logger_destroy(logger);
     return 0;
 }

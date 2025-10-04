@@ -55,7 +55,7 @@ kernel:
 	cp ../kernel.conf .config; \
 	$(MAKE) -j$(shell nproc) olddefconfig; \
 	$(MAKE) -j$(shell nproc) all;
-	@cp $(KERNEL_IMAGE) $(KERNEL_TREE)
+	@cp $(KERNEL_TREE)/arch/x86/boot/bzImage $(KERNEL_IMAGE)
 
 build: $(SUBPROJECTS)
 	@set -e; \
