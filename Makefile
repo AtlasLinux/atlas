@@ -2,8 +2,8 @@ SRC_DIR     := 	src
 BUILD_DIR   := 	build
 ISO_DIR		:= 	iso
 
-IMAGE       := 	atlas.img
-ISO 		:= 	atlaslinux-x86_64.iso
+IMAGE       ?= 	atlas.img
+ISO 		?= 	atlaslinux-x86_64.iso
 IMAGE_SIZE  := 	64   # size in MB
 MOUNT_POINT := 	mnt
 
@@ -17,8 +17,6 @@ MODULES     ?= 	e1000 \
 DEST_ROOT   := 	$(SRC_DIR)/usr/lib/modules/$(KERNEL_VER)
 
 QEMU_ARGS 	?= \
-		-device ich9-intel-hda \
-		-device hda-duplex \
 		-netdev user,id=net0 \
 		-device e1000,netdev=net0 \
 		-device virtio-vga \
