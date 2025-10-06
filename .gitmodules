@@ -34,3 +34,6 @@
 [submodule "docs"]
 	path = docs
 	url = https://github.com/atlaslinux/docs
+[submodule "src/usr/lib/libacl"]
+	path = src/usr/lib/libacl
+	url = https://github.com/atlaslinux/acl
