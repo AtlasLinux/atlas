@@ -8,6 +8,8 @@
 * Pandora package manafer (src/usr/bin/pandora)
 * Argus window manager (src/usr/bin/argus)
 * Sound daemon (src/sbin/services/sound)
+* Login daemon (src/sbin/services/auth)
+* Config lang and library (src/usr/lib/libconf)
 
 # Needs fixing
 * Hermes' file tab completion appends rubbish data
