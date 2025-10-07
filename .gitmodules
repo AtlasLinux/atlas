@@ -28,9 +28,6 @@
 [submodule "src/usr/bin/fish_editor"]
 	path = src/usr/bin/fish_editor
 	url = https://github.com/gingrspacecadet/fish_editor
-[submodule "src/usr/bin/argus"]
-	path = src/usr/bin/argus
-	url = https://github.com/atlaslinux/argus
 [submodule "docs"]
 	path = docs
 	url = https://github.com/atlaslinux/docs
