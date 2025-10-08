@@ -19,7 +19,8 @@ DEST_ROOT   := 	$(SRC_DIR)/usr/lib/modules/$(KERNEL_VER)
 QEMU_ARGS 	?= \
 		-netdev user,id=net0 \
 		-device e1000,netdev=net0 \
-		-device virtio-vga \
+		-device virtio-vga,virgl=on \
+		-display gtk,gl=on \
 		-device virtio-mouse \
 		-m 8096 \
 		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
