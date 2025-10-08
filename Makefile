@@ -58,7 +58,7 @@ kernel:
 	@cp $(KERNEL_TREE)/arch/x86/boot/bzImage $(KERNEL_IMAGE)
 
 build: $(SUBPROJECTS)
-	@set -e; \
+# 	@set -e;
 	for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
 		echo "==> Building $$dir"; \
