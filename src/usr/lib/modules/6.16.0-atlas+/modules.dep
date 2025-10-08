@@ -1,3 +1,5 @@
 drivers/net/ethernet/intel/e1000/e1000.ko:
+drivers/virtio/virtio_input.ko:
+drivers/input/mousedev.ko:
 drivers/virtio/virtio_dma_buf.ko:
 drivers/gpu/drm/virtio/virtio-gpu.ko: drivers/virtio/virtio_dma_buf.ko

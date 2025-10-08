@@ -20,6 +20,7 @@ QEMU_ARGS 	?= \
 		-netdev user,id=net0 \
 		-device e1000,netdev=net0 \
 		-device virtio-vga \
+		-device virtio-mouse \
 		-m 8096 \
 		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
 		-drive if=pflash,format=raw,file=x64/OVMF_VARS.4m.fd

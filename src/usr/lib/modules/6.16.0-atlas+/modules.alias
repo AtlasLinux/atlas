@@ -36,4 +36,10 @@ alias pci:v00008086d00001008sv*sd*bc*sc*i* e1000
 alias pci:v00008086d00001004sv*sd*bc*sc*i* e1000
 alias pci:v00008086d00001001sv*sd*bc*sc*i* e1000
 alias pci:v00008086d00001000sv*sd*bc*sc*i* e1000
+alias virtio:d00000012v* virtio_input
+alias input:b*v*p*e*-e*1,*3,*k*110,*r*a*0,*1,*m*l*s*f*w* mousedev
+alias input:b*v*p*e*-e*1,*3,*k*145,*r*a*0,*1,*18,*1C,*m*l*s*f*w* mousedev
+alias input:b*v*p*e*-e*1,*3,*k*14A,*r*a*0,*1,*m*l*s*f*w* mousedev
+alias input:b*v*p*e*-e*1,*2,*k*r*8,*a*m*l*s*f*w* mousedev
+alias input:b*v*p*e*-e*1,*2,*k*110,*r*0,*1,*a*m*l*s*f*w* mousedev
 alias virtio:d00000010v* virtio_gpu
