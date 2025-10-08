@@ -1,21 +1,29 @@
-CC = gcc
-CFLAGS = -O2 -g -Wall -Wextra
-LIBS_SERVER = -lwayland-server
-LIBS_CLIENT = -lwayland-client
+# Directories
+SRC_DIR := src
+BUILD_DIR := build
 
-all: server client vk_probe
+CC := gcc
+CFLAGS := -I../../include -L../../lib -lwayland-client -lwayland-server
 
-VK_PROBE_OBJS = src/vk_probe.c
-vk_probe: $(VK_PROBE_OBJS)
-	$(CC) -O2 -g -o build/$@ $^ -lvulkan
+# Find all .c source files in SRC_DIR
+SRCS := $(wildcard $(SRC_DIR)/*.c)
 
-server: src/server.c
-	@mkdir -p build
-	$(CC) $(CFLAGS) -o build/$@ $^ $(LIBS_SERVER)
+# Generate list of binaries in BUILD_DIR by replacing src/ with bin/ and .c with nothing
+BINS := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%, $(SRCS))
 
-client: src/client.c
-	@mkdir -p build
-	$(CC) $(CFLAGS) -o build/$@ $^ $(LIBS_CLIENT)
+# Default target
+all: $(BINS)
 
+# Rule to build each binary
+$(BUILD_DIR)/%: $(SRC_DIR)/%.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -o $@ $<
+
+# Create bin directory if it doesn't exist
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
+
+# Clean target
 clean:
-	rm -f server client /tmp/argus_commit_*.ppm
+	@rm -rf $(BUILD_DIR)
+
+.PHONY: all clean

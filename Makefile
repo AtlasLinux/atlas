@@ -19,8 +19,7 @@ DEST_ROOT   := 	$(SRC_DIR)/usr/lib/modules/$(KERNEL_VER)
 QEMU_ARGS 	?= \
 		-netdev user,id=net0 \
 		-device e1000,netdev=net0 \
-		-device virtio-vga,virgl=on \
-		-display gtk,gl=on \
+		-device virtio-vga \
 		-device virtio-mouse \
 		-m 8096 \
 		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
@@ -58,7 +57,7 @@ kernel:
 	@cp $(KERNEL_TREE)/arch/x86/boot/bzImage $(KERNEL_IMAGE)
 
 build: $(SUBPROJECTS)
-# 	@set -e;
+	@set -e; \
 	for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
 		echo "==> Building $$dir"; \
@@ -113,8 +112,8 @@ img: install
 	@echo "==> Rebuilding $(IMAGE) ($(IMAGE_SIZE)MB))"
 	@rm -f $(IMAGE)
 	@if [ ! -f $(IMAGE) ]; then \
-		dd if=/dev/zero of=$(IMAGE) bs=1M count=$(IMAGE_SIZE) status=none; \
-		mkfs.ext4 -F $(IMAGE); \
+		dd if=/dev/zero of=$(IMAGE) bs=1M count=$(IMAGE_SIZE) status=none > /dev/null 2>&1; \
+		mkfs.ext4 -F $(IMAGE) > /dev/null 2>&1; \
 	fi
 	@echo "==> Installing full rootfs into $(IMAGE)"
 	@mkdir -p $(MOUNT_POINT)
