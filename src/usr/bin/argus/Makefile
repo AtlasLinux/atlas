@@ -15,7 +15,7 @@ BINS := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%, $(SRCS))
 all: $(BINS)
 
 # Rule to build each binary
-#$(BUILD_DIR)/%: $(SRC_DIR)/%.c | $(BUILD_DIR)
+$(BUILD_DIR)/%: $(SRC_DIR)/%.c | $(BUILD_DIR)
 #	$(CC) $(CFLAGS) -o $@ $<
 
 # Create bin directory if it doesn't exist
