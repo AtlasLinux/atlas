@@ -11,7 +11,7 @@
 
 # .PHONY: all clean run crun
 
-# all: $(TARGET)
+all: $(TARGET)
 
 # $(TARGET): $(OBJ)
 # 	$(CC) $(CFLAGS) -o $@ $^
