@@ -1,5 +1,7 @@
 CC = gcc
-CFLAGS = -L../../usr/lib/libacl/build -lacl
+CFLAGS = -Wall -Wextra -O2
+LDFLAGS = -L../../usr/lib/libacl/build
+LDLIBS = -lacl
 
 BUILD_DIR = build
 SRC_DIR = src
@@ -14,7 +16,7 @@ TARGET = build/login
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 	@mkdir -p $(dir $@)
@@ -24,8 +26,7 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 clean:
-	rm -rf $(BUILD_DIR)
-	rm -f $(TARGET)
+	rm -rf $(BUILD_DIR) $(TARGET)
 
 run: all
 	@./$(TARGET)
