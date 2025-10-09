@@ -95,6 +95,7 @@ static void build_user_path(char *buf, size_t n, const char *user, const char *f
 int main(int argc, char **argv) {
     const char *conf = "/conf/users.acl"; /* path inside the running system */
     char *err = NULL;
+    printf("\x1b[2J\x1b[H"); // clear screen
 
     AclBlock *root = acl_parse_file(conf);
     if (!root) {

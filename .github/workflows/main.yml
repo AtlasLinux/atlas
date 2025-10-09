@@ -19,7 +19,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y gcc make grub-common xorriso mtools cpio gzip
 
       - name: Build ISO
-        run: make clean && make iso
+        run: make iso
 
       - name: Install GitHub CLI
         run: sudo apt-get install -y gh
