@@ -5,7 +5,7 @@ Users {
         int gid = 0;
         string home = "/root";
         string shell = "/bin/hermes";
-        string passwd_hash = "sha256$44029224a2ca461266a6a9ffa0112700$25542d59d2219c3ebc61c3990552b915f1d75b4e613f2233d7219cdc2d5f1c12"; // hashed or plain
+        string passwd_hash = "sha256$44029224a2ca461266a6a9ffa0112700$25542d59d2219c3ebc61c3990552b915f1d75b4e613f2233d7219cdc2d5f1c12"; // hashed with tools/mkpasswd-sha256
         bool locked = false;
     }
 }

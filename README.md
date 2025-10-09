@@ -2,6 +2,7 @@
 
 AtlasLinux is a from-scratch Linux distro, where we use as few external libraries as possible. The long-term goal is to only rely on the Linux kernel, with a custom [libc](https://github.com/atlaslinux/atlibc), bootloader, etc.
 
+The username is 'root' with password 'root'  
 If you solely want the .iso, you can get it from the auto-built [release](https://github.com/atlaslinux/atlas/releases/tag/latest).
 
 ## Developing

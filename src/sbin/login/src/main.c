@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
     if (setgid((gid_t)gid) < 0) perror("setgid");
     if (setuid((uid_t)uid) < 0) perror("setuid");
 
-    if (chdir(home) < 0) {
+    if (chdir(home) < 0 || setenv("HOME", home, 1)) {
         /* not fatal; just warn */
         fprintf(stderr, "login: chdir(%s): %s\n", home, strerror(errno));
     }
