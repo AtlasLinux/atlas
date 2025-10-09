@@ -132,7 +132,7 @@ run: img
 		$(QEMU_ARGS) \
 		-kernel $(KERNEL_IMAGE) \
 		-append "root=/dev/vda rw console=tty1" \
-		-drive file=$(IMAGE),if=virtio,format=raw \
+		-drive file=$(IMAGE),if=virtio,format=raw
 
 run-iso: iso
 	qemu-system-x86_64 \
