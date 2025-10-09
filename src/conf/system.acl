@@ -1,0 +1,6 @@
+System {
+    string name = "Atlas";
+    int    boot_delay = 200;
+    string default_shell = "/bin/hermes";
+    int    spawn_getty_ttys = 3;
+}

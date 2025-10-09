@@ -25,9 +25,12 @@ QEMU_ARGS 	?= \
 		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
 		-drive if=pflash,format=raw,file=x64/OVMF_VARS.4m.fd
 
-.PHONY: all img run clean install crun iso build crun-iso kernel modules
+.PHONY: all img run clean install crun iso build crun-iso kernel modules tools
 
 all: img
+
+tools:
+	$(MAKE) -C tools
 
 modules:
 	@mkdir -p $(BUILD_DIR)

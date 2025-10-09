@@ -763,8 +763,6 @@ static void strtrim(char *s) {
 
 int main(void) {
     logger = logger_create(LOG_INFO);
-    LogSink* console_sink = console_sink_create();
-    logger_add_sink(logger, console_sink);
     LogSink* file_sink = file_sink_create("/log/services/init.log");
     logger_add_sink(logger, file_sink);
     log_info("dhcp service starting...\n\r");
