@@ -1,36 +1,36 @@
 [submodule "src/usr/bin/hermes"]
-	path = src/usr/bin/hermes
+	path = src/core/bin/hermes
 	url = https://github.com/atlaslinux/hermes
 [submodule "src/usr/bin/arch"]
-	path = src/usr/bin/arch
+	path = src/core/bin/arch
 	url = https://github.com/atlaslinux/arch
 [submodule "src/usr/bin/pandora"]
-	path = src/usr/bin/pandora
+	path = src/core/bin/pandora
 	url = https://github.com/atlaslinux/pandora
 [submodule "src/usr/bin/curl"]
-	path = src/usr/bin/curl
+	path = src/core/bin/curl
 	url = https://github.com/atlaslinux/curl
 [submodule "src/usr/bin/coreutils"]
-	path = src/usr/bin/coreutils
+	path = src/core/bin/coreutils
 	url = https://github.com/atlaslinux/coreutils
 [submodule "src/sbin/init"]
 	path = src/sbin/init
 	url = https://github.com/atlaslinux/gaia
 [submodule "src/usr/lib/libfb"]
-	path = src/usr/lib/libfb
+	path = src/core/lib/libfb
 	url = https://github.com/AtlasLinux/libfb
 [submodule "src/usr/lib/liblog"]
-	path = src/usr/lib/liblog
+	path = src/core/lib/liblog
 	url = https://github.com/AtlasLinux/liblog
 [submodule "linux"]
 	path = linux
 	url = https://github.com/atlaslinux/linux
 [submodule "src/usr/bin/fish_editor"]
-	path = src/usr/bin/fish_editor
+	path = src/core/bin/fish_editor
 	url = https://github.com/gingrspacecadet/fish_editor
 [submodule "docs"]
 	path = docs
 	url = https://github.com/atlaslinux/docs
 [submodule "src/usr/lib/libacl"]
-	path = src/usr/lib/libacl
+	path = src/core/lib/libacl
 	url = https://github.com/atlaslinux/acl
