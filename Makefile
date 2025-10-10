@@ -107,7 +107,7 @@ install: build
 iso: install
 	@mkdir -p $(ISO_DIR)/boot/grub
 	@sudo rm -f $(BUILD_DIR)/init
-	@sudo ln $(BUILD_DIR)/sbin/init $(BUILD_DIR)/init
+	@sudo ln $(BUILD_DIR)/core/sbin/init $(BUILD_DIR)/init
 	@cd $(BUILD_DIR) && find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../$(ISO_DIR)/boot/initramfs.cpio.gz
 	@sudo cp $(KERNEL_IMAGE) $(ISO_DIR)/boot
 	@cp grub.cfg $(ISO_DIR)/boot/grub
