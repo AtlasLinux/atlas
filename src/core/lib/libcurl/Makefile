@@ -1,7 +1,7 @@
 # Compiler and flags
 CC := gcc
-CFLAGS := -fPIC -Wall -Wextra -O2 -lssl -lcrypto
-LDFLAGS := -shared -L../
+CFLAGS := -fPIC -Wall -Wextra -O2
+LDFLAGS := -shared -L../ -lssl -lcrypto
 
 # Directories
 SRC_DIR := src
