@@ -7,7 +7,8 @@ ISO 		?= 	atlaslinux-x86_64.iso
 IMAGE_SIZE  := 	64   # size in MB
 MOUNT_POINT := 	mnt
 
-SUBPROJECTS := 	$(shell find $(SRC_DIR) -type f -name Makefile | sort -r)
+SUBPROJECTS := 	$(shell { find src/ -type f -name Makefile | grep '^src/core/lib/'; \
+  find src/ -type f -name Makefile | grep -v '^src/core/lib/'; })
 
 KERNEL_TREE := 	linux
 KERNEL_IMAGE:= 	$(KERNEL_TREE)/bzImage
@@ -63,8 +64,10 @@ build: $(SUBPROJECTS)
 	@set -e; \
 	for mf in $(SUBPROJECTS); do \
 		dir=$$(dirname $$mf); \
-		echo "==> Building $$dir"; \
-		$(MAKE) -C $$dir --no-print-directory -s; \
+		if ! $(MAKE) -C $$dir -q --no-print-directory >/dev/null 2>&1; then \
+			echo "==> Building $$dir"; \
+			$(MAKE) -C $$dir --no-print-directory -s; \
+		fi; \
 	done
 
 install: build
@@ -120,18 +123,18 @@ img: install
 	fi
 	@echo "==> Installing full rootfs into $(IMAGE)"
 	@mkdir -p $(MOUNT_POINT)
-	sudo mount -o loop $(IMAGE) $(MOUNT_POINT)
+	@sudo mount -o loop $(IMAGE) $(MOUNT_POINT)
 
-	sudo cp -r $(BUILD_DIR)/* $(MOUNT_POINT)
+	@sudo cp -r $(BUILD_DIR)/* $(MOUNT_POINT)
 
-	sudo umount $(MOUNT_POINT)
+	@sudo umount $(MOUNT_POINT)
 	@echo "==> $(IMAGE) rebuilt."
 
 run: img
 	qemu-system-x86_64 \
 		$(QEMU_ARGS) \
 		-kernel $(KERNEL_IMAGE) \
-		-append "root=/dev/vda rw console=tty1" \
+		-append "root=/dev/vda rw console=tty1 init=/core/sbin/init" \
 		-drive file=$(IMAGE),if=virtio,format=raw
 
 run-iso: iso
