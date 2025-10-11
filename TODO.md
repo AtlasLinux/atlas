@@ -1,15 +1,16 @@
 # Needs replacing
-* OpenSSL (src/usr/lib/libssl.so.3)
-* Libcrypto (src/usr/lib/libcrypto.so.3)
-* Glibc (src/usr/lib/libc.so.6)
-* Linker (src/usr/lib64/ld-linux-x86-64.so.2)
+* OpenSSL (src/core/lib/libssl.so.3)
+* Libcrypto (src/core/lib/libcrypto.so.3)
+* Glibc (src/core/lib/libc.so.6)
+* Linker (src/core/lib64/ld-linux-x86-64.so.2)
 
 # Needs making
-* Pandora package manafer (src/usr/bin/pandora)
-* Argus window manager (src/usr/bin/argus)
+* Pandora package manafer (src/core/bin/pandora)
+* Argus window manager (src/core/bin/argus)
 * Sound daemon (src/sbin/services/sound)
 * Login daemon (src/sbin/services/auth)
-* Config lang and library (src/usr/lib/libconf)
 
 # Needs fixing
-* Hermes' file tab completion appends rubbish data
+## Hermes
+* Tab completion appends rubbish data
+* Add Segfault printing
