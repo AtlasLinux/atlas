@@ -26,7 +26,7 @@ QEMU_ARGS 	?= \
 		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
 		-drive if=pflash,format=raw,file=x64/OVMF_VARS.4m.fd
 
-.PHONY: all img run clean install crun iso build crun-iso kernel modules tools eos
+.PHONY: all img run clean install crun iso build crun-iso kernel modules tools grub
 
 all: img
 
@@ -57,7 +57,7 @@ kernel:
 	export INSTALL_MOD_PATH=$(abspath src/usr); \
 	cp ../kernel.conf .config; \
 	$(MAKE) -j$(shell nproc) olddefconfig; \
-	$(MAKE) -j$(shell nproc) all;
+	$(MAKE) -j$(shell nproc) bzImage;
 	@cp $(KERNEL_TREE)/arch/x86/boot/bzImage $(KERNEL_IMAGE)
 
 build: $(SUBPROJECTS)
@@ -104,7 +104,7 @@ install: build
 			fi; \
 	done
 
-iso: install
+grub: install
 	@mkdir -p $(ISO_DIR)/boot/grub
 	@sudo rm -f $(BUILD_DIR)/init
 	@sudo ln $(BUILD_DIR)/core/sbin/init $(BUILD_DIR)/init
@@ -113,12 +113,13 @@ iso: install
 	@cp grub.cfg $(ISO_DIR)/boot/grub
 	@grub-mkrescue -o $(ISO) $(ISO_DIR)
 
-eos: install
+iso: install
 	@echo "==> Building Eos"
 	@$(MAKE) -C boot/eos || (echo "Eos build failed"; exit 1)
 
 	@echo "==> Preparing ISO tree at $(ISO_DIR)"
-	@mkdir -p $(ISO_DIR)/EFI/BOOT $(ISO_DIR)/EFI/Eos $(ISO_DIR)/boot
+	@rm -rf $(ISO_DIR)
+	@mkdir -p $(ISO_DIR)/EFI/BOOT $(ISO_DIR)/boot $(ISO_DIR)/EFI/Atlas
 
 	@sudo rm -f $(BUILD_DIR)/init
 	@sudo ln -f $(BUILD_DIR)/core/sbin/init $(BUILD_DIR)/init
@@ -129,18 +130,33 @@ eos: install
 	@echo "==> Copying kernel"
 	@sudo cp -v $(KERNEL_IMAGE) $(ISO_DIR)/boot/
 
-	@echo "==> Installing Eos into ISO tree"
+	@echo "==> Installing Eos into ISO tree (temporary copy)"
 	@cp -v boot/eos/build/eos.efi $(ISO_DIR)/EFI/BOOT/BOOTX64.EFI
-	@cp -v boot/eos/build/eos.efi $(ISO_DIR)/EFI/Eos/Eos.efi
 	@chmod a+r $(ISO_DIR)/EFI/BOOT/BOOTX64.EFI || true
 
-	@echo "==> Building UEFI-bootable ISO (hybrid, El Torito EFI)"
+	@echo "==> Creating EFI System Partition image inside ISO tree"
+	@EFI_IMG="$(ISO_DIR)/EFI/BOOT/efiboot.img"; \
+	SIZE_MB=64; \
+	MNT_DIR=$$(mktemp -d /tmp/efimnt.XXXX); \
+	dd if=/dev/zero of="$$EFI_IMG" bs=1M count=$$SIZE_MB status=none || (echo "dd failed"; rm -rf $$MNT_DIR; exit 1); \
+	mkfs.vfat -n "ESP" "$$EFI_IMG" >/dev/null 2>&1 || (echo "mkfs.vfat failed"; rm -rf $$MNT_DIR; exit 1); \
+	sudo mount -o loop "$$EFI_IMG" "$$MNT_DIR" || (echo "mount failed"; rm -rf $$MNT_DIR; exit 1); \
+	sudo mkdir -p "$$MNT_DIR/EFI/BOOT" "$$MNT_DIR/boot"; \
+	sudo cp -v "$(ISO_DIR)/EFI/BOOT/BOOTX64.EFI" "$$MNT_DIR/EFI/BOOT/BOOTX64.EFI" || (echo "copy to efimg failed"; sudo umount $$MNT_DIR; rm -rf $$MNT_DIR; exit 1); \
+	sudo cp -v "$(ISO_DIR)/boot/bzImage" "$$MNT_DIR/boot/bzImage" || (echo "copy to efimg failed"; sudo umount $$MNT_DIR; rm -rf $$MNT_DIR; exit 1); \
+	sudo cp -v "$(ISO_DIR)/boot/initramfs.cpio.gz" "$$MNT_DIR/boot/initramfs.cpio.gz" || (echo "copy to efimg failed"; sudo umount $$MNT_DIR; rm -rf $$MNT_DIR; exit 1);
+	
+	@if [ -f "$(ISO_DIR)/EFI/Eos/Eos.efi" ]; then sudo cp -v "$(ISO_DIR)/EFI/Eos/Eos.efi" "$$MNT_DIR/EFI/Eos/Eos.efi" || true; fi; \
+	echo "  -> syncing and unmounting $$EFI_IMG"; sync; sudo umount $$MNT_DIR; rm -rf $$MNT_DIR; \
+	echo "==> Created EFI image: $$EFI_IMG"
+
+	@echo "==> Building UEFI-bootable ISO (embedding EFI image as El-Torito EFI)"
 	@which xorriso >/dev/null 2>&1 || (echo "Error: xorriso required to build ISO" >&2; exit 1)
 	@xorriso -as mkisofs \
 		-r -J -joliet-long -V "ATLAS" \
 		-o $(ISO) \
 		-eltorito-alt-boot \
-		-e EFI/BOOT/BOOTX64.EFI -no-emul-boot \
+		-e EFI/BOOT/efiboot.img -no-emul-boot \
 		-isohybrid-gpt-basdat \
 		$(ISO_DIR)
 
@@ -187,4 +203,4 @@ clean:
 		dir=$$(dirname $$mf); \
 		$(MAKE) -C $$dir --no-print-directory -s clean || true; \
 	done
-	$(MAKE) -C boot/eos clean
+	@$(MAKE) --no-print-directory -C boot/eos clean

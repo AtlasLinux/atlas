@@ -1,0 +1,50 @@
+Registry {
+    string url = "https://reg.example.com/index.acl";
+    int priority = 100;
+    bool require_signatures = false;
+    string cache_policy = "ttl=3600";
+    string metrics_url = "https://reg.example.com/metrics";
+    /* mytool package */
+    Package "mytool" {
+        string[] versions = { "3.0.0", "2.4.1", "2.3.0" };
+        string latest = "3.0.0";
+        string pkg_base_url = "https://reg.example.com/pkgs/mytool";
+        string[] tags = { "cli", "tooling" };
+
+        Version "3.0.0" {
+            string manifest_url = "https://reg.example.com/pkgs/mytool/3.0.0/manifest.acl";
+            string pkg_url = "https://reg.example.com/pkgs/mytool/3.0.0/mytool-3.0.0.pkg";
+            string sha256 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+            bool deprecated = false;
+            string provenance = "https://reg.example.com/pkgs/mytool/3.0.0/provenance.json";
+        }
+
+        Version "2.4.1" {
+            string manifest_url = "https://reg.example.com/pkgs/mytool/2.4.1/manifest.acl";
+            string pkg_url = "https://reg.example.com/pkgs/mytool/2.4.1/mytool-2.4.1.pkg";
+            string sha256 = "d2f4e5a1b3c4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0";
+            bool deprecated = false;
+        }
+
+        Version "2.3.0" {
+            string manifest_url = "https://reg.example.com/pkgs/mytool/2.3.0/manifest.acl";
+            string pkg_url = "https://reg.example.com/pkgs/mytool/2.3.0/mytool-2.3.0.pkg";
+            string sha256 = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+            bool deprecated = true;
+        }
+    }
+
+    /* libfoo using base URL and a single version */
+    Package "libfoo" {
+        string[] versions = { "1.0.0" };
+        string latest = "1.0.0";
+        string pkg_base_url = "https://reg.example.com/pkgs/libfoo";
+
+        Version "1.0.0" {
+            string manifest_url = "https://reg.example.com/pkgs/libfoo/1.0.0/manifest.acl";
+            /* pkg_url omitted; client may construct it using pkg_base_url */
+            string sha256 = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
+        }
+    }
+}
+
