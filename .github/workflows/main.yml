@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 1          # full history (needed if submodules use tags)
 
       - name: Install build tools
-        run: sudo apt-get update && sudo apt-get install -y gcc make grub-common xorriso mtools cpio gzip
+        run: sudo apt-get update && sudo apt-get install -y gcc make grub-common xorriso mtools cpio gzip gnu-efi
 
       - name: Build ISO
         run: make iso

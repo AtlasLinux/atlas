@@ -26,7 +26,7 @@ QEMU_ARGS 	?= \
 		-drive if=pflash,format=raw,readonly=on,file=x64/OVMF_CODE.4m.fd \
 		-drive if=pflash,format=raw,file=x64/OVMF_VARS.4m.fd
 
-.PHONY: all img run clean install crun iso build crun-iso kernel modules tools
+.PHONY: all img run clean install crun iso build crun-iso kernel modules tools eos
 
 all: img
 
@@ -113,6 +113,39 @@ iso: install
 	@cp grub.cfg $(ISO_DIR)/boot/grub
 	@grub-mkrescue -o $(ISO) $(ISO_DIR)
 
+eos: install
+	@echo "==> Building Eos"
+	@$(MAKE) -C boot/eos || (echo "Eos build failed"; exit 1)
+
+	@echo "==> Preparing ISO tree at $(ISO_DIR)"
+	@mkdir -p $(ISO_DIR)/EFI/BOOT $(ISO_DIR)/EFI/Eos $(ISO_DIR)/boot
+
+	@sudo rm -f $(BUILD_DIR)/init
+	@sudo ln -f $(BUILD_DIR)/core/sbin/init $(BUILD_DIR)/init
+
+	@echo "==> Creating initramfs"
+	@cd $(BUILD_DIR) && find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../$(ISO_DIR)/boot/initramfs.cpio.gz
+
+	@echo "==> Copying kernel"
+	@sudo cp -v $(KERNEL_IMAGE) $(ISO_DIR)/boot/
+
+	@echo "==> Installing Eos into ISO tree"
+	@cp -v boot/eos/build/eos.efi $(ISO_DIR)/EFI/BOOT/BOOTX64.EFI
+	@cp -v boot/eos/build/eos.efi $(ISO_DIR)/EFI/Eos/Eos.efi
+	@chmod a+r $(ISO_DIR)/EFI/BOOT/BOOTX64.EFI || true
+
+	@echo "==> Building UEFI-bootable ISO (hybrid, El Torito EFI)"
+	@which xorriso >/dev/null 2>&1 || (echo "Error: xorriso required to build ISO" >&2; exit 1)
+	@xorriso -as mkisofs \
+		-r -J -joliet-long -V "ATLAS" \
+		-o $(ISO) \
+		-eltorito-alt-boot \
+		-e EFI/BOOT/BOOTX64.EFI -no-emul-boot \
+		-isohybrid-gpt-basdat \
+		$(ISO_DIR)
+
+	@echo "==> EOS ISO written to $(ISO)"
+
 img: install
 	@sudo umount $(MOUNT_POINT) 2>/dev/null || true
 	@echo "==> Rebuilding $(IMAGE) ($(IMAGE_SIZE)MB))"
@@ -137,7 +170,7 @@ run: img
 		-append "root=/dev/vda rw console=tty1 init=/core/sbin/init" \
 		-drive file=$(IMAGE),if=virtio,format=raw
 
-run-iso: iso
+run-iso:
 	qemu-system-x86_64 \
 		-cdrom $(ISO) \
 		$(QEMU_ARGS)
@@ -154,3 +187,4 @@ clean:
 		dir=$$(dirname $$mf); \
 		$(MAKE) -C $$dir --no-print-directory -s clean || true; \
 	done
+	$(MAKE) -C boot/eos clean
