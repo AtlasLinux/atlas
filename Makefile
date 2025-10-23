@@ -15,7 +15,7 @@ KERNEL_IMAGE:= 	$(KERNEL_TREE)/bzImage
 KERNEL_VER  := 	$(shell strings $(KERNEL_IMAGE) | grep "atlas" -m 1 | sed 's/ .*//')
 MODULES     ?= 	e1000 \
 				virtio_dma_buf virtio-gpu
-DEST_ROOT   := 	$(SRC_DIR)/usr/lib/modules/$(KERNEL_VER)
+DEST_ROOT   := 	$(SRC_DIR)/core/lib/modules/$(KERNEL_VER)
 
 QEMU_ARGS 	?= \
 		-netdev user,id=net0 \
@@ -50,14 +50,14 @@ modules:
 	@sudo cp $(KERNEL_TREE)/modules.builtin  $(DEST_ROOT)
 	@sudo cp $(KERNEL_TREE)/modules.builtin.modinfo  $(DEST_ROOT)
 	@sudo cp $(KERNEL_TREE)/modules.order  $(DEST_ROOT)
-	@sudo depmod -b $(SRC_DIR)/usr $(KERNEL_VER)
+	@sudo depmod -b $(SRC_DIR)/core $(KERNEL_VER)
 
 kernel:
 	@cd linux; \
-	export INSTALL_MOD_PATH=$(abspath src/usr); \
 	cp ../kernel.conf .config; \
 	$(MAKE) -j$(shell nproc) olddefconfig; \
-	$(MAKE) -j$(shell nproc) bzImage;
+	$(MAKE) -j$(shell nproc) bzImage; \
+	$(MAKE) -j$(shell nproc) modules;
 	@cp $(KERNEL_TREE)/arch/x86/boot/bzImage $(KERNEL_IMAGE)
 
 build: $(SUBPROJECTS)

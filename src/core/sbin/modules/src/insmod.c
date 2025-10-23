@@ -64,13 +64,13 @@ int main(int argc, char **argv) {
     wanted_name = modname;
     found_path[0] = '\0';
 
-    /* Walk /core/lib/modules/6.16.0-atlas+ */
-    if (nftw("/core/lib/modules/6.16.0-atlas+", find_module_cb, 16, FTW_PHYS) == -1 && found_path[0] == '\0') {
+    /* Walk /core/lib/modules/6.18.0-rc2-atlas+ */
+    if (nftw("/core/lib/modules/6.18.0-rc2-atlas+", find_module_cb, 16, FTW_PHYS) == -1 && found_path[0] == '\0') {
         perror("nftw");
         return EXIT_FAILURE;
     }
     if (found_path[0] == '\0') {
-        fprintf(stderr, "Module %s not found under /core/lib/modules/6.16.0-atlas+\n\r", modname);
+        fprintf(stderr, "Module %s not found under /core/lib/modules/6.18.0-rc2-atlas+\n\r", modname);
         return EXIT_FAILURE;
     }
 

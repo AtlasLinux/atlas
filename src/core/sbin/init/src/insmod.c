@@ -57,13 +57,13 @@ int insmod(char* module) {
     wanted_name = modname;
     found_path[0] = '\0';
 
-    /* Walk /core/lib/modules/6.16.0-atlas+ */
-    if (nftw("/core/lib/modules/6.16.0-atlas+", find_module_cb, 16, FTW_PHYS) == -1 && found_path[0] == '\0') {
+    /* Walk /core/lib/modules/6.18.0-rc2-atlas+ */
+    if (nftw("/core/lib/modules/6.18.0-rc2-atlas+", find_module_cb, 16, FTW_PHYS) == -1 && found_path[0] == '\0') {
         log_perror("nftw");
         return EXIT_FAILURE;
     }
     if (found_path[0] == '\0') {
-        log_error("Module %s not found under /core/lib/modules/6.16.0-atlas+\n", modname);
+        log_error("Module %s not found under /core/lib/modules/6.18.0-rc2-atlas+\n", modname);
         return EXIT_FAILURE;
     }
     log_debug("Found module %s at %s\n", module, found_path);
