@@ -1,5 +1,7 @@
 # AtlasLinux
 
+![AtlasLinux init log](image.png)
+
 AtlasLinux is a from-scratch Linux distro, where we use as few external libraries as possible. The long-term goal is to only rely on the Linux kernel, with a custom [libc](https://github.com/atlaslinux/atlibc), bootloader, etc.
 
 The username is 'root' with password 'root'  
